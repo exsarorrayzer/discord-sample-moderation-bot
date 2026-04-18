@@ -67,6 +67,12 @@ client.once('ready', () => {
     activities: [{ name: config.name, type: ActivityType[config.type] }],
     status: config.statusMode,
   });
+
+  const remindmeCommand = client.commands.get("remindme");
+  if (remindmeCommand && remindmeCommand.startReminderCheck) {
+    remindmeCommand.startReminderCheck(client);
+    console.log("[+] Reminder system initialized");
+  }
 });
 
 const xpCooldowns = new Map();
