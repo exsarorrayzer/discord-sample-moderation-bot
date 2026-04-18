@@ -1,0 +1,26 @@
+{
+  "ban": {
+    "sayi": 3,
+    "dakika": 10,
+    "status": true,
+    "cooldown": 0
+  },
+  "kick": {
+    "sayi": 10,
+    "dakika": 2,
+    "status": true,
+    "cooldown": 0
+  },
+  "mute": {
+    "sayi": 0,
+    "dakika": 0,
+    "status": false,
+    "cooldown": 0
+  },
+  "unban": {
+    "sayi": 5,
+    "dakika": 10,
+    "status": true,
+    "cooldown": 0
+  }
+}

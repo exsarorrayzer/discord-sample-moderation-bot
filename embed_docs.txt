@@ -1,0 +1,45 @@
+=============================================
+GEKOMC - EMBED DÖKÜMANTASYONU
+=============================================
+
+Söz dizimi (Syntax): 
+,embed [ANA DEĞERLER] + [PARAMETRE BLOĞU]
+
+---------------------------------------------
+1. ANA DEĞERLER (Ana Bölüm)
+---------------------------------------------
+- title=...        : Embed başlığı.
+- desc=...         : Embed açıklaması.
+- color=...        : Embed rengi (pink, red, blue, green vb. veya #hex).
+- author=...       : Üst kısım yazar metni.
+- author_icon=...  : Yazar kısmının ikonu (Link).
+- footer=...       : Alt bilgi metni.
+- footer_icon=...  : Alt bilgi ikonu (Link).
+- image=...        : Büyük boy resim.
+- thumbnail=...    : Sağ üst küçük resim (thumb= olarak da kullanılabilir).
+
+---------------------------------------------
+2. PARAMETRE BLOĞU ( [] İçerisi )
+---------------------------------------------
+Köşeli parantez içinde virgülle ayrılarak birden fazla field (alan) eklenebilir.
+
+Örnekler:
+- [field1=Metin]
+- [field1=Metin, field2=Diğer Metin, footer=Özel Alt Bilgi]
+- [color=pink, footer=GEKOMC]
+
+---------------------------------------------
+3. ÖRNEK KULLANIM SENARYOLARI
+---------------------------------------------
+
+# Basit Kullanım:
+,embed title=Duyuru desc=Merhaba Dünya!
+
+# Gelişmiş Kullanım:
+,embed title=Sunucu Kuralları desc=Lütfen kurallara uyunuz. color=blue + [field1=Madde 1: Saygı, field2=Madde 2: Düzen, footer=GEKOMC Yönetimi]
+
+# Resimli Kullanım:
+,embed title=Yeni Güncelleme color=#FF00FF author=GEKOMC image=UPLOAD_LINKİ thumb=ICON_LINKI
+
+NOT: Her 24 saatte bir döküman talep edebilirsiniz (Yöneticiler hariç).
+=============================================
