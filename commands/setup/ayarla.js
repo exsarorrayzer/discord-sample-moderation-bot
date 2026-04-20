@@ -9,6 +9,7 @@ const botkomut = require("../../pattern/botkomut.json");
 const limitler = require("../../pattern/limitler.json");
 const fotochat = require("../../pattern/fotochat.json");
 const antilink = require("../../pattern/antilink.json");
+const protection = require("../../pattern/protection.json");
 
 module.exports = {
   name: "ayarla",
@@ -365,8 +366,243 @@ module.exports = {
       }
 
       return message.reply(`${emojis.warn} Geçersiz komut. \`ayarla antilink\` yazarak yardım alabilirsiniz.`);
+    } else if (type === "koruma" || type === "protection") {
+      const system = args[1];
+
+      if (!system) {
+        const protectionField = `🛡️ **Anti-Raid**: ${protection.antiraid.status ? "🟢" : "🔴"} | \`${protection.antiraid.limit}\` kullanıcı / \`${protection.antiraid.time}\`s | İşlem: \`${protection.antiraid.action}\`\n` +
+          `💬 **Anti-Spam**: ${protection.antispam.status ? "🟢" : "🔴"} | \`${protection.antispam.limit}\` mesaj / \`${protection.antispam.time}\`s\n` +
+          `😀 **Anti-Emoji**: ${protection.antiemoji.status ? "🟢" : "🔴"} | Limit: \`${protection.antiemoji.limit}\`\n` +
+          `🔠 **Anti-Caps**: ${protection.anticaps.status ? "🟢" : "🔴"} | Yüzde: \`${protection.anticaps.percentage}%\`\n` +
+          `📋 **Anti-Duplicate**: ${protection.antiduplicate.status ? "🟢" : "🔴"} | Tekrar: \`${protection.antiduplicate.count}\`\n` +
+          `@️ **Anti-Mention**: ${protection.antimention.status ? "🟢" : "🔴"} | Limit: \`${protection.antimention.limit}\``;
+
+        baseEmbed.setTitle("🛡️ Koruma Sistemleri")
+          .setDescription("Sunucu koruma modüllerini buradan yönetebilirsiniz.")
+          .addFields({ name: "Mevcut Sistemler", value: protectionField })
+          .setColor("#E74C3C");
+        return message.channel.send({ embeds: [baseEmbed] });
+      }
+
+      const onKeywords = ["ac", "enable", "on"];
+      const offKeywords = ["kapa", "disable", "off"];
+
+      if (system === "antiraid") {
+        const action = args[2];
+        
+        if (onKeywords.includes(action)) {
+          protection.antiraid.status = true;
+          fs.writeFileSync(path.join(__dirname, "../..", "pattern", "protection.json"), JSON.stringify(protection, null, 2));
+          baseEmbed.setTitle(`${emojis.success} Anti-Raid Aktif`)
+            .setDescription("Toplu katılım koruması açıldı.");
+          return message.channel.send({ embeds: [baseEmbed] });
+        }
+
+        if (offKeywords.includes(action)) {
+          protection.antiraid.status = false;
+          fs.writeFileSync(path.join(__dirname, "../..", "pattern", "protection.json"), JSON.stringify(protection, null, 2));
+          baseEmbed.setTitle(`${emojis.success} Anti-Raid Kapatıldı`)
+            .setDescription("Toplu katılım koruması kapatıldı.");
+          return message.channel.send({ embeds: [baseEmbed] });
+        }
+
+        if (action === "ayarla" || action === "set") {
+          const limit = parseInt(args[3]);
+          const time = parseInt(args[4]);
+          const raidAction = args[5];
+
+          if (!limit || !time || !["kick", "ban"].includes(raidAction)) {
+            return message.reply(`${emojis.warn} Kullanım: \`ayarla koruma antiraid ayarla <limit> <saniye> <kick/ban>\``);
+          }
+
+          protection.antiraid.limit = limit;
+          protection.antiraid.time = time;
+          protection.antiraid.action = raidAction;
+          fs.writeFileSync(path.join(__dirname, "../..", "pattern", "protection.json"), JSON.stringify(protection, null, 2));
+          
+          baseEmbed.setTitle(`${emojis.success} Anti-Raid Ayarlandı`)
+            .addFields(
+              { name: "Limit", value: `\`${limit}\` kullanıcı`, inline: true },
+              { name: "Süre", value: `\`${time}\` saniye`, inline: true },
+              { name: "İşlem", value: `\`${raidAction}\``, inline: true }
+            );
+          return message.channel.send({ embeds: [baseEmbed] });
+        }
+      }
+
+      if (system === "antispam") {
+        const action = args[2];
+        
+        if (onKeywords.includes(action)) {
+          protection.antispam.status = true;
+          fs.writeFileSync(path.join(__dirname, "../..", "pattern", "protection.json"), JSON.stringify(protection, null, 2));
+          baseEmbed.setTitle(`${emojis.success} Anti-Spam Aktif`);
+          return message.channel.send({ embeds: [baseEmbed] });
+        }
+
+        if (offKeywords.includes(action)) {
+          protection.antispam.status = false;
+          fs.writeFileSync(path.join(__dirname, "../..", "pattern", "protection.json"), JSON.stringify(protection, null, 2));
+          baseEmbed.setTitle(`${emojis.success} Anti-Spam Kapatıldı`);
+          return message.channel.send({ embeds: [baseEmbed] });
+        }
+
+        if (action === "ayarla" || action === "set") {
+          const limit = parseInt(args[3]);
+          const time = parseInt(args[4]);
+
+          if (!limit || !time) {
+            return message.reply(`${emojis.warn} Kullanım: \`ayarla koruma antispam ayarla <limit> <saniye>\``);
+          }
+
+          protection.antispam.limit = limit;
+          protection.antispam.time = time;
+          fs.writeFileSync(path.join(__dirname, "../..", "pattern", "protection.json"), JSON.stringify(protection, null, 2));
+          
+          baseEmbed.setTitle(`${emojis.success} Anti-Spam Ayarlandı`)
+            .addFields(
+              { name: "Limit", value: `\`${limit}\` mesaj`, inline: true },
+              { name: "Süre", value: `\`${time}\` saniye`, inline: true }
+            );
+          return message.channel.send({ embeds: [baseEmbed] });
+        }
+      }
+
+      if (system === "antiemoji") {
+        const action = args[2];
+        
+        if (onKeywords.includes(action)) {
+          protection.antiemoji.status = true;
+          fs.writeFileSync(path.join(__dirname, "../..", "pattern", "protection.json"), JSON.stringify(protection, null, 2));
+          baseEmbed.setTitle(`${emojis.success} Anti-Emoji Aktif`);
+          return message.channel.send({ embeds: [baseEmbed] });
+        }
+
+        if (offKeywords.includes(action)) {
+          protection.antiemoji.status = false;
+          fs.writeFileSync(path.join(__dirname, "../..", "pattern", "protection.json"), JSON.stringify(protection, null, 2));
+          baseEmbed.setTitle(`${emojis.success} Anti-Emoji Kapatıldı`);
+          return message.channel.send({ embeds: [baseEmbed] });
+        }
+
+        if (action === "ayarla" || action === "set") {
+          const limit = parseInt(args[3]);
+
+          if (!limit) {
+            return message.reply(`${emojis.warn} Kullanım: \`ayarla koruma antiemoji ayarla <limit>\``);
+          }
+
+          protection.antiemoji.limit = limit;
+          fs.writeFileSync(path.join(__dirname, "../..", "pattern", "protection.json"), JSON.stringify(protection, null, 2));
+          
+          baseEmbed.setTitle(`${emojis.success} Anti-Emoji Ayarlandı`)
+            .addFields({ name: "Limit", value: `\`${limit}\` emoji` });
+          return message.channel.send({ embeds: [baseEmbed] });
+        }
+      }
+
+      if (system === "anticaps") {
+        const action = args[2];
+        
+        if (onKeywords.includes(action)) {
+          protection.anticaps.status = true;
+          fs.writeFileSync(path.join(__dirname, "../..", "pattern", "protection.json"), JSON.stringify(protection, null, 2));
+          baseEmbed.setTitle(`${emojis.success} Anti-Caps Aktif`);
+          return message.channel.send({ embeds: [baseEmbed] });
+        }
+
+        if (offKeywords.includes(action)) {
+          protection.anticaps.status = false;
+          fs.writeFileSync(path.join(__dirname, "../..", "pattern", "protection.json"), JSON.stringify(protection, null, 2));
+          baseEmbed.setTitle(`${emojis.success} Anti-Caps Kapatıldı`);
+          return message.channel.send({ embeds: [baseEmbed] });
+        }
+
+        if (action === "ayarla" || action === "set") {
+          const percentage = parseInt(args[3]);
+
+          if (!percentage || percentage < 1 || percentage > 100) {
+            return message.reply(`${emojis.warn} Kullanım: \`ayarla koruma anticaps ayarla <yüzde>\` (1-100)`);
+          }
+
+          protection.anticaps.percentage = percentage;
+          fs.writeFileSync(path.join(__dirname, "../..", "pattern", "protection.json"), JSON.stringify(protection, null, 2));
+          
+          baseEmbed.setTitle(`${emojis.success} Anti-Caps Ayarlandı`)
+            .addFields({ name: "Yüzde", value: `\`${percentage}%\`` });
+          return message.channel.send({ embeds: [baseEmbed] });
+        }
+      }
+
+      if (system === "antiduplicate") {
+        const action = args[2];
+        
+        if (onKeywords.includes(action)) {
+          protection.antiduplicate.status = true;
+          fs.writeFileSync(path.join(__dirname, "../..", "pattern", "protection.json"), JSON.stringify(protection, null, 2));
+          baseEmbed.setTitle(`${emojis.success} Anti-Duplicate Aktif`);
+          return message.channel.send({ embeds: [baseEmbed] });
+        }
+
+        if (offKeywords.includes(action)) {
+          protection.antiduplicate.status = false;
+          fs.writeFileSync(path.join(__dirname, "../..", "pattern", "protection.json"), JSON.stringify(protection, null, 2));
+          baseEmbed.setTitle(`${emojis.success} Anti-Duplicate Kapatıldı`);
+          return message.channel.send({ embeds: [baseEmbed] });
+        }
+
+        if (action === "ayarla" || action === "set") {
+          const count = parseInt(args[3]);
+
+          if (!count || count < 2) {
+            return message.reply(`${emojis.warn} Kullanım: \`ayarla koruma antiduplicate ayarla <tekrar-sayısı>\` (min: 2)`);
+          }
+
+          protection.antiduplicate.count = count;
+          fs.writeFileSync(path.join(__dirname, "../..", "pattern", "protection.json"), JSON.stringify(protection, null, 2));
+          
+          baseEmbed.setTitle(`${emojis.success} Anti-Duplicate Ayarlandı`)
+            .addFields({ name: "Tekrar Sayısı", value: `\`${count}\`` });
+          return message.channel.send({ embeds: [baseEmbed] });
+        }
+      }
+
+      if (system === "antimention") {
+        const action = args[2];
+        
+        if (onKeywords.includes(action)) {
+          protection.antimention.status = true;
+          fs.writeFileSync(path.join(__dirname, "../..", "pattern", "protection.json"), JSON.stringify(protection, null, 2));
+          baseEmbed.setTitle(`${emojis.success} Anti-Mention Aktif`);
+          return message.channel.send({ embeds: [baseEmbed] });
+        }
+
+        if (offKeywords.includes(action)) {
+          protection.antimention.status = false;
+          fs.writeFileSync(path.join(__dirname, "../..", "pattern", "protection.json"), JSON.stringify(protection, null, 2));
+          baseEmbed.setTitle(`${emojis.success} Anti-Mention Kapatıldı`);
+          return message.channel.send({ embeds: [baseEmbed] });
+        }
+
+        if (action === "ayarla" || action === "set") {
+          const limit = parseInt(args[3]);
+
+          if (!limit) {
+            return message.reply(`${emojis.warn} Kullanım: \`ayarla koruma antimention ayarla <limit>\``);
+          }
+
+          protection.antimention.limit = limit;
+          fs.writeFileSync(path.join(__dirname, "../..", "pattern", "protection.json"), JSON.stringify(protection, null, 2));
+          
+          baseEmbed.setTitle(`${emojis.success} Anti-Mention Ayarlandı`)
+            .addFields({ name: "Limit", value: `\`${limit}\` mention` });
+          return message.channel.send({ embeds: [baseEmbed] });
+        }
+      }
+
+      return message.reply(`${emojis.warn} Geçersiz sistem. Kullanım: \`ayarla koruma <antiraid/antispam/antiemoji/anticaps/antiduplicate/antimention>\``);
     } else {
-      return message.reply(`${emojis.error} Hatalı bir kategori belirttiniz. Lütfen \`log\`, \`rol\`, \`botkomut\`, \`limit\`, \`fotochat\` veya \`antilink\` seçiniz.`);
+      return message.reply(`${emojis.error} Hatalı bir kategori belirttiniz. Lütfen \`log\`, \`rol\`, \`botkomut\`, \`limit\`, \`fotochat\`, \`antilink\` veya \`koruma\` seçiniz.`);
     }
   }
 };

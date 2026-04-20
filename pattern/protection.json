@@ -1,0 +1,29 @@
+{
+  "antiraid": {
+    "status": false,
+    "limit": 5,
+    "time": 10,
+    "action": "kick"
+  },
+  "antispam": {
+    "status": false,
+    "limit": 5,
+    "time": 5
+  },
+  "antiemoji": {
+    "status": false,
+    "limit": 10
+  },
+  "anticaps": {
+    "status": false,
+    "percentage": 70
+  },
+  "antiduplicate": {
+    "status": false,
+    "count": 3
+  },
+  "antimention": {
+    "status": false,
+    "limit": 5
+  }
+}

@@ -10,6 +10,8 @@ const botkomut = require("./pattern/botkomut.json");
 const limitler = require("./pattern/limitler.json");
 const fotochat = require("./pattern/fotochat.json");
 const antilink = require("./pattern/antilink.json");
+const blacklist = require("./pattern/blacklist.json");
+const protection = require("./pattern/protection.json");
 
 if (!process.env.TOKEN || !process.env.OWNER_ID) {
   console.error("CRITICAL: TOKEN or OWNER_ID not set in environment variables");
@@ -86,12 +88,110 @@ client.once('ready', () => {
     remindmeCommand.startReminderCheck(client);
     console.log("[+] Reminder system initialized");
   }
+
+  setInterval(() => {
+    const tempmutesPath = path.join(__dirname, "pattern/tempmutes.json");
+    if (!fs.existsSync(tempmutesPath)) return;
+    
+    const tempMutes = JSON.parse(fs.readFileSync(tempmutesPath, "utf-8"));
+    const now = Date.now();
+    
+    Object.keys(tempMutes).forEach(userId => {
+      const muteData = tempMutes[userId];
+      if (now >= muteData.endTime) {
+        const guild = client.guilds.cache.get(muteData.guildId);
+        if (guild) {
+          const member = guild.members.cache.get(userId);
+          if (member && member.isCommunicationDisabled()) {
+            member.timeout(null).catch(() => {});
+          }
+        }
+        delete tempMutes[userId];
+      }
+    });
+    
+    fs.writeFileSync(tempmutesPath, JSON.stringify(tempMutes, null, 2));
+  }, 30000);
+  console.log("[+] Tempmute auto-removal initialized");
 });
 
 const xpCooldowns = new Map();
 
 client.on("messageCreate", (message) => {
   if (message.author.bot || !message.guild) return;
+
+  const blacklistData = blacklist.users || [];
+  if (blacklistData.includes(message.author.id)) {
+    return message.delete().catch(() => {});
+  }
+
+  const isOwner = message.author.id === process.env.OWNER_ID;
+  const isAdmin = message.member.permissions.has(PermissionFlagsBits.Administrator);
+
+  if (!isOwner && !isAdmin) {
+    if (protection.antimention.status) {
+      const mentionCount = (message.content.match(/<@[!&]?\d+>/g) || []).length;
+      if (mentionCount > protection.antimention.limit) {
+        message.delete().catch(() => {});
+        return message.channel.send(`${emojis.error} **${message.author.tag}**, çok fazla mention kullandınız!`).then(msg => {
+          setTimeout(() => msg.delete().catch(() => {}), 5000);
+        }).catch(() => {});
+      }
+    }
+
+    if (protection.antiemoji.status) {
+      const emojiCount = (message.content.match(/<a?:\w+:\d+>|[\u{1F600}-\u{1F64F}\u{1F300}-\u{1F5FF}\u{1F680}-\u{1F6FF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}]/gu) || []).length;
+      if (emojiCount > protection.antiemoji.limit) {
+        message.delete().catch(() => {});
+        return message.channel.send(`${emojis.error} **${message.author.tag}**, çok fazla emoji kullandınız!`).then(msg => {
+          setTimeout(() => msg.delete().catch(() => {}), 5000);
+        }).catch(() => {});
+      }
+    }
+
+    if (protection.anticaps.status && message.content.length > 10) {
+      const upperCount = (message.content.match(/[A-ZÇĞİÖŞÜ]/g) || []).length;
+      const totalLetters = (message.content.match(/[A-ZÇĞİÖŞÜa-zçğıöşü]/g) || []).length;
+      if (totalLetters > 0 && (upperCount / totalLetters) * 100 > protection.anticaps.percentage) {
+        message.delete().catch(() => {});
+        return message.channel.send(`${emojis.error} **${message.author.tag}**, çok fazla büyük harf kullandınız!`).then(msg => {
+          setTimeout(() => msg.delete().catch(() => {}), 5000);
+        }).catch(() => {});
+      }
+    }
+
+    if (protection.antiduplicate.status) {
+      if (!client.messageHistory) client.messageHistory = new Map();
+      const userHistory = client.messageHistory.get(message.author.id) || [];
+      userHistory.push(message.content);
+      if (userHistory.length > protection.antiduplicate.count) userHistory.shift();
+      client.messageHistory.set(message.author.id, userHistory);
+
+      if (userHistory.length === protection.antiduplicate.count && userHistory.every(m => m === message.content)) {
+        message.delete().catch(() => {});
+        return message.channel.send(`${emojis.error} **${message.author.tag}**, aynı mesajı tekrar göndermeyin!`).then(msg => {
+          setTimeout(() => msg.delete().catch(() => {}), 5000);
+        }).catch(() => {});
+      }
+    }
+
+    if (protection.antispam.status) {
+      if (!client.spamTracker) client.spamTracker = new Map();
+      const userSpam = client.spamTracker.get(message.author.id) || [];
+      const now = Date.now();
+      userSpam.push(now);
+      const recentMessages = userSpam.filter(t => now - t < protection.antispam.time * 1000);
+      client.spamTracker.set(message.author.id, recentMessages);
+
+      if (recentMessages.length > protection.antispam.limit) {
+        message.delete().catch(() => {});
+        message.member.timeout(60000, "Spam koruması").catch(() => {});
+        return message.channel.send(`${emojis.error} **${message.author.tag}** spam yaptığı için 1 dakika susturuldu!`).then(msg => {
+          setTimeout(() => msg.delete().catch(() => {}), 5000);
+        }).catch(() => {});
+      }
+    }
+  }
 
   const levelsPath = path.join(__dirname, "pattern/levels.json");
   function loadLevels() {
@@ -162,8 +262,6 @@ client.on("messageCreate", (message) => {
       setTimeout(() => msg.delete().catch(() => {}), 5000);
     }).catch(() => {});
   }
-
-  const isOwner = message.author.id === process.env.OWNER_ID;
   
   if (antilink.status && !message.member.permissions.has(PermissionFlagsBits.Administrator) && !isOwner) {
     const hasAntilinkBypass = yetkirole.antilink_bypass && message.member.roles.cache.has(yetkirole.antilink_bypass);
@@ -231,7 +329,6 @@ client.on("messageCreate", (message) => {
 
   if (!command) return;
 
-  const isAdmin = message.member.permissions.has(PermissionFlagsBits.Administrator);
   const isYonetim = yetkirole.yonetim && message.member.roles.cache.has(yetkirole.yonetim);
 
   if (botkomut.only && !isOwner && !isAdmin && !isYonetim) {
@@ -348,6 +445,43 @@ client.on("voiceStateUpdate", (oldState, newState) => {
 
 client.on("guildMemberAdd", (member) => {
   if (!member || !member.guild) return;
+
+  if (protection.antiraid.status) {
+    if (!client.raidTracker) client.raidTracker = new Map();
+    const guildJoins = client.raidTracker.get(member.guild.id) || [];
+    const now = Date.now();
+    guildJoins.push({ userId: member.id, timestamp: now });
+    const recentJoins = guildJoins.filter(j => now - j.timestamp < protection.antiraid.time * 1000);
+    client.raidTracker.set(member.guild.id, recentJoins);
+
+    if (recentJoins.length > protection.antiraid.limit) {
+      const action = protection.antiraid.action;
+      if (action === "kick") {
+        member.kick("Anti-raid koruması").catch(() => {});
+      } else if (action === "ban") {
+        member.ban({ reason: "Anti-raid koruması" }).catch(() => {});
+      }
+      
+      const logId = logkanallari.mod_log;
+      if (logId) {
+        const logChannel = member.guild.channels.cache.get(logId);
+        if (logChannel) {
+          const embed = new EmbedBuilder()
+            .setTitle("🛡️ Anti-Raid Koruması Tetiklendi")
+            .setDescription(`**${member.user.tag}** ${action === "kick" ? "atıldı" : "yasaklandı"}`)
+            .setColor("#FF0000")
+            .addFields(
+              { name: "👤 Kullanıcı", value: `${member.user.tag} (${member.id})`, inline: true },
+              { name: "⚡ İşlem", value: `\`${action.toUpperCase()}\``, inline: true },
+              { name: "📊 Son Katılımlar", value: `\`${recentJoins.length}\` kullanıcı / \`${protection.antiraid.time}\`s`, inline: true }
+            )
+            .setTimestamp();
+          logChannel.send({ embeds: [embed] });
+        }
+      }
+      return;
+    }
+  }
 
   const welcomeData = loadJSON(welcomePath);
   if (welcomeData.channelId) {

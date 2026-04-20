@@ -105,7 +105,11 @@ module.exports = {
     target.send(`${emojis.warn} **${message.guild.name}** sunucusunda uyarıldınız!\n**Sebep:** ${reason}\n**Toplam Uyarı:** ${warnCount}`).catch(() => {});
 
     if (warnCount >= 3) {
-      message.channel.send(`${emojis.alert} **${target.user.tag}** 3 veya daha fazla uyarıya sahip! Gerekli işlem yapılabilir.`);
+      target.timeout(600000, "3 uyarı sınırına ulaşıldı - Otomatik 10 dakika mute").then(() => {
+        message.channel.send(`${emojis.alert} **${target.user.tag}** 3 uyarıya ulaştı ve otomatik olarak 10 dakika susturuldu!`);
+      }).catch(() => {
+        message.channel.send(`${emojis.alert} **${target.user.tag}** 3 uyarıya ulaştı ancak susturulamadı!`);
+      });
     }
   }
 };
