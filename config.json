@@ -1,9 +1,9 @@
 {
-  "clientId": "YOUR_BOT_CLIENT_ID",
-  "statusMode": "online",
-  "name": "Discord Bot",
+  "clientId": "1487875010109374575",
+  "statusMode": "dnd",
+  "name": "porn",
   "type": "WATCHING",
-  "prefix": "!",
+  "prefix": ".",
   "emojis": {
     "success": "✅",
     "error": "❌",

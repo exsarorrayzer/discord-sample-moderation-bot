@@ -51,12 +51,24 @@ const client = new Client({
 
 const cooldownMap = new Map();
 client.commands = new Collection();
-const commandFiles = fs.readdirSync(path.join(__dirname, "commands")).filter(file => file.endsWith(".js"));
 
-for (const file of commandFiles) {
-  const command = require(`./commands/${file}`);
-  client.commands.set(command.name, command);
+function loadCommands(dir) {
+  const items = fs.readdirSync(dir);
+  
+  for (const item of items) {
+    const itemPath = path.join(dir, item);
+    const stat = fs.statSync(itemPath);
+    
+    if (stat.isDirectory()) {
+      loadCommands(itemPath);
+    } else if (item.endsWith('.js')) {
+      const command = require(itemPath);
+      client.commands.set(command.name, command);
+    }
+  }
 }
+
+loadCommands(path.join(__dirname, "commands"));
 
 client.once('ready', () => {
   console.log(`[+] BOT ONLINE - ${client.user.tag}`);
@@ -153,11 +165,33 @@ client.on("messageCreate", (message) => {
   if (!message.content.startsWith(config.prefix)) return;
 
   const args = message.content.slice(config.prefix.length).trim().split(/ +/);
-  const commandName = args.shift().toLowerCase();
+  const rawCommandName = args.shift();
+  
+  if (rawCommandName.length > 50) return;
 
-  if (commandName.length > 50) return;
+  function normalizeText(text) {
+    const turkishMap = {
+      'ç': 'c', 'Ç': 'c',
+      'ğ': 'g', 'Ğ': 'g',
+      'ı': 'i', 'I': 'i', 'İ': 'i',
+      'ö': 'o', 'Ö': 'o',
+      'ş': 's', 'Ş': 's',
+      'ü': 'u', 'Ü': 'u'
+    };
+    
+    return text.split('').map(char => turkishMap[char] || char).join('').toLowerCase();
+  }
 
-  const command = client.commands.get(commandName) || client.commands.find(cmd => cmd.aliases && cmd.aliases.includes(commandName));
+  const commandName = normalizeText(rawCommandName);
+
+  const command = client.commands.get(commandName) || 
+    client.commands.find(cmd => {
+      if (normalizeText(cmd.name) === commandName) return true;
+      if (cmd.aliases) {
+        return cmd.aliases.some(alias => normalizeText(alias) === commandName);
+      }
+      return false;
+    });
 
   if (!command) return;
 
@@ -361,6 +395,170 @@ client.on("messageReactionRemove", async (reaction, user) => {
 });
 
 client.on("interactionCreate", async (interaction) => {
+  if (interaction.isStringSelectMenu()) {
+    if (interaction.customId === "help_category") {
+      const category = interaction.values[0];
+      const categories = {
+        moderation: {
+          name: "🛡️ Moderasyon",
+          desc: "Sunucu yönetimi ve moderasyon komutları",
+          commands: ["ban", "kick", "mute", "unmute", "warn", "clearwarns", "warnings", "tempban", "softban", "unban", "purge", "lock", "unlock", "slowmode", "nuke"]
+        },
+        general: {
+          name: "📋 Genel",
+          desc: "Genel amaçlı kullanıcı komutları",
+          commands: ["help", "ping", "serverinfo", "userinfo", "avatar", "afk", "poll", "remindme", "stats"]
+        },
+        economy: {
+          name: "💰 Ekonomi",
+          desc: "Para kazanma ve harcama komutları",
+          commands: ["economy", "daily", "weekly", "beg", "work", "crime", "fish", "mine", "deposit", "withdraw", "transfer", "rob", "buy", "sell", "shop", "inventory", "leaderboard", "lottery"]
+        },
+        games: {
+          name: "🎮 Oyunlar",
+          desc: "Eğlence ve oyun komutları",
+          commands: ["8ball", "coinflip", "dice", "rps", "blackjack", "slots", "roulette", "trivia", "quest"]
+        },
+        level: {
+          name: "📊 Seviye Sistemi",
+          desc: "XP ve seviye takip komutları",
+          commands: ["level", "rank", "setxp"]
+        },
+        setup: {
+          name: "⚙️ Kurulum",
+          desc: "Bot yapılandırma ve kurulum komutları",
+          commands: ["ayarla", "welcome", "autorole", "reactionrole", "ticketsetup", "giveaway", "announce", "embed"]
+        },
+        utility: {
+          name: "🔧 Araçlar",
+          desc: "Yardımcı araçlar ve özellikler",
+          commands: ["role", "massrole", "nick", "voicemove", "ticket", "history", "banlist", "jobinfo", "yazdir"]
+        }
+      };
+
+      const selectedCategory = categories[category];
+      const commandList = selectedCategory.commands.map(cmd => `\`${config.prefix}${cmd}\``).join(", ");
+
+      const embed = new EmbedBuilder()
+        .setTitle(selectedCategory.name)
+        .setDescription(`${selectedCategory.desc}\n\n**Komutlar:**\n${commandList}\n\n**Detaylı bilgi için:** \`${config.prefix}komut_adı\``)
+        .setColor("#5865F2")
+        .setFooter({ text: `${interaction.user.tag} tarafından istendi`, iconURL: interaction.user.displayAvatarURL({ dynamic: true }) })
+        .setTimestamp();
+
+      return interaction.update({ embeds: [embed] });
+    }
+
+    if (interaction.customId === "help_settings") {
+      const isOwner = interaction.user.id === process.env.OWNER_ID;
+      const isAdmin = interaction.member.permissions.has(PermissionFlagsBits.Administrator);
+      
+      if (!isOwner && !isAdmin) {
+        return interaction.reply({ content: `${emojis.error} Bu ayarları sadece yöneticiler değiştirebilir!`, ephemeral: true });
+      }
+
+      const settingsPath = path.join(__dirname, "pattern/commandsettings.json");
+      function loadSettings() {
+        if (!fs.existsSync(settingsPath)) return {};
+        return JSON.parse(fs.readFileSync(settingsPath, "utf-8"));
+      }
+      function saveSettings(data) {
+        fs.writeFileSync(settingsPath, JSON.stringify(data, null, 2));
+      }
+
+      const settings = loadSettings();
+      const action = interaction.values[0];
+      const categoryKey = action.replace("toggle_", "");
+
+      settings[categoryKey] = settings[categoryKey] === false ? true : false;
+      saveSettings(settings);
+
+      const categories = {
+        moderation: { name: "🛡️ Moderasyon", desc: "Sunucu yönetimi ve moderasyon komutları", commands: ["ban", "kick", "mute", "unmute", "warn", "clearwarns", "warnings", "tempban", "softban", "unban", "purge", "lock", "unlock", "slowmode", "nuke"] },
+        general: { name: "📋 Genel", desc: "Genel amaçlı kullanıcı komutları", commands: ["help", "ping", "serverinfo", "userinfo", "avatar", "afk", "poll", "remindme", "stats"] },
+        economy: { name: "💰 Ekonomi", desc: "Para kazanma ve harcama komutları", commands: ["economy", "daily", "weekly", "beg", "work", "crime", "fish", "mine", "deposit", "withdraw", "transfer", "rob", "buy", "sell", "shop", "inventory", "leaderboard", "lottery"] },
+        games: { name: "🎮 Oyunlar", desc: "Eğlence ve oyun komutları", commands: ["8ball", "coinflip", "dice", "rps", "blackjack", "slots", "roulette", "trivia", "quest"] },
+        level: { name: "📊 Seviye Sistemi", desc: "XP ve seviye takip komutları", commands: ["level", "rank", "setxp"] },
+        setup: { name: "⚙️ Kurulum", desc: "Bot yapılandırma ve kurulum komutları", commands: ["ayarla", "welcome", "autorole", "reactionrole", "ticketsetup", "giveaway", "announce", "embed"] },
+        utility: { name: "🔧 Araçlar", desc: "Yardımcı araçlar ve özellikler", commands: ["role", "massrole", "nick", "voicemove", "ticket", "history", "banlist", "jobinfo", "yazdir"] }
+      };
+
+      const categoryOptions = Object.keys(categories).map(key => ({
+        label: categories[key].name,
+        value: `toggle_${key}`,
+        description: `${categories[key].commands.length} komut`,
+        emoji: settings[key] === false ? "❌" : "✅"
+      }));
+
+      const selectMenu = new StringSelectMenuBuilder()
+        .setCustomId("help_settings")
+        .setPlaceholder("Kategori seçin")
+        .addOptions(categoryOptions);
+
+      const row = new ActionRowBuilder().addComponents(selectMenu);
+
+      const embed = new EmbedBuilder()
+        .setTitle("⚙️ Sunucu Ayarları - Komut Kategorileri")
+        .setDescription(`${emojis.success} **${categories[categoryKey].name}** kategorisi ${settings[categoryKey] === false ? "kapatıldı" : "açıldı"}!\n\nKategorileri açıp kapatarak hangi komutların sunucunuzda görüneceğini kontrol edebilirsiniz.\n\n✅ = Aktif\n❌ = Kapalı`)
+        .setColor("#3498DB")
+        .setFooter({ text: "Sadece yöneticiler bu ayarları değiştirebilir" })
+        .setTimestamp();
+
+      return interaction.update({ embeds: [embed], components: [row] });
+    }
+  }
+
+  if (interaction.isButton()) {
+    if (interaction.customId === "help_settings_btn") {
+      const isOwner = interaction.user.id === process.env.OWNER_ID;
+      const isAdmin = interaction.member.permissions.has(PermissionFlagsBits.Administrator);
+      
+      if (!isOwner && !isAdmin) {
+        return interaction.reply({ content: `${emojis.error} Bu ayarları sadece yöneticiler değiştirebilir!`, ephemeral: true });
+      }
+
+      const settingsPath = path.join(__dirname, "pattern/commandsettings.json");
+      function loadSettings() {
+        if (!fs.existsSync(settingsPath)) return {};
+        return JSON.parse(fs.readFileSync(settingsPath, "utf-8"));
+      }
+
+      const settings = loadSettings();
+      const categories = {
+        moderation: { name: "🛡️ Moderasyon", desc: "Sunucu yönetimi ve moderasyon komutları", commands: ["ban", "kick", "mute", "unmute", "warn", "clearwarns", "warnings", "tempban", "softban", "unban", "purge", "lock", "unlock", "slowmode", "nuke"] },
+        general: { name: "📋 Genel", desc: "Genel amaçlı kullanıcı komutları", commands: ["help", "ping", "serverinfo", "userinfo", "avatar", "afk", "poll", "remindme", "stats"] },
+        economy: { name: "💰 Ekonomi", desc: "Para kazanma ve harcama komutları", commands: ["economy", "daily", "weekly", "beg", "work", "crime", "fish", "mine", "deposit", "withdraw", "transfer", "rob", "buy", "sell", "shop", "inventory", "leaderboard", "lottery"] },
+        games: { name: "🎮 Oyunlar", desc: "Eğlence ve oyun komutları", commands: ["8ball", "coinflip", "dice", "rps", "blackjack", "slots", "roulette", "trivia", "quest"] },
+        level: { name: "📊 Seviye Sistemi", desc: "XP ve seviye takip komutları", commands: ["level", "rank", "setxp"] },
+        setup: { name: "⚙️ Kurulum", desc: "Bot yapılandırma ve kurulum komutları", commands: ["ayarla", "welcome", "autorole", "reactionrole", "ticketsetup", "giveaway", "announce", "embed"] },
+        utility: { name: "🔧 Araçlar", desc: "Yardımcı araçlar ve özellikler", commands: ["role", "massrole", "nick", "voicemove", "ticket", "history", "banlist", "jobinfo", "yazdir"] }
+      };
+
+      const categoryOptions = Object.keys(categories).map(key => ({
+        label: categories[key].name,
+        value: `toggle_${key}`,
+        description: `${categories[key].commands.length} komut`,
+        emoji: settings[key] === false ? "❌" : "✅"
+      }));
+
+      const selectMenu = new StringSelectMenuBuilder()
+        .setCustomId("help_settings")
+        .setPlaceholder("Kategori seçin")
+        .addOptions(categoryOptions);
+
+      const row = new ActionRowBuilder().addComponents(selectMenu);
+
+      const embed = new EmbedBuilder()
+        .setTitle("⚙️ Sunucu Ayarları - Komut Kategorileri")
+        .setDescription("Kategorileri açıp kapatarak hangi komutların sunucunuzda görüneceğini kontrol edebilirsiniz.\n\n✅ = Aktif\n❌ = Kapalı")
+        .setColor("#3498DB")
+        .setFooter({ text: "Sadece yöneticiler bu ayarları değiştirebilir" })
+        .setTimestamp();
+
+      return interaction.reply({ embeds: [embed], components: [row], ephemeral: true });
+    }
+  }
+
   if (!interaction.isButton()) return;
 
   if (interaction.customId === "ticket_create") {
