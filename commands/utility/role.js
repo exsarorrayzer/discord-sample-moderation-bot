@@ -9,12 +9,25 @@ module.exports = {
   execute(message, args) {
     const isAdmin = message.member.permissions.has(PermissionFlagsBits.Administrator);
     const isOwner = message.author.id === process.env.OWNER_ID;
+    const hasRolVerPermission = yetkirole.rol_ver && message.member.roles.cache.has(yetkirole.rol_ver);
+    const hasRolAlPermission = yetkirole.rol_al && message.member.roles.cache.has(yetkirole.rol_al);
 
-    if (!isAdmin && !isOwner) {
+    const action = args[0]?.toLowerCase();
+    const isGiveAction = ["ver", "give"].includes(action);
+    const isRemoveAction = ["al", "remove"].includes(action);
+
+    if (isGiveAction && !isAdmin && !isOwner && !hasRolVerPermission) {
+      return message.reply(`${emojis.error} Rol vermek için yetkiniz yok.`);
+    }
+
+    if (isRemoveAction && !isAdmin && !isOwner && !hasRolAlPermission) {
+      return message.reply(`${emojis.error} Rol almak için yetkiniz yok.`);
+    }
+
+    if (!isAdmin && !isOwner && !hasRolVerPermission && !hasRolAlPermission) {
       return message.reply(`${emojis.error} Bu komutu kullanmak için yetkiniz yok.`);
     }
 
-    const action = args[0]?.toLowerCase();
     if (!action || !["ver", "al", "give", "remove"].includes(action)) {
       return message.reply(`${emojis.warn} Kullanım: \`.role ver/al @User @Role\``);
     }
@@ -26,11 +39,16 @@ module.exports = {
       return message.reply(`${emojis.warn} Bir kullanıcı ve rol belirtmelisiniz.`);
     }
 
-    if (role.position >= message.guild.members.me.highestRole.position) {
+    const protectedRoles = Object.values(yetkirole).filter(r => r && r !== "");
+    if (protectedRoles.includes(role.id)) {
+      return message.reply(`${emojis.error} Bu rol yetki rolü olarak tanımlanmış, verilemez veya alınamaz.`);
+    }
+
+    if (role.position >= message.guild.members.me.roles.highest.position) {
       return message.reply(`${emojis.error} Bu rolü yönetmek için yeterli yetkim yok.`);
     }
 
-    if (role.position >= message.member.highestRole.position && !isOwner) {
+    if (role.position >= message.member.roles.highest.position && !isOwner) {
       return message.reply(`${emojis.error} Bu rolü yönetmek için yeterli yetkiniz yok.`);
     }
 
