@@ -50,6 +50,7 @@ Production-ready Discord bot with comprehensive moderation, economy system, leve
 - Rock-Paper-Scissors game
 
 ### Advanced Features
+- Interactive help panel with category selection
 - Custom embed builder with documentation
 - Photo-only channel enforcement
 - Bot command channel restrictions
@@ -57,6 +58,7 @@ Production-ready Discord bot with comprehensive moderation, economy system, leve
 - Rate limiting with guard system
 - Role-based permission control
 - Configurable cooldowns per command
+- Turkish character normalization in commands
 
 ## Installation
 
@@ -81,7 +83,7 @@ OWNER_ID=YOUR_DISCORD_USER_ID
 Edit `config.json`:
 ```json
 {
-  "prefix": "!",
+  "prefix": ".",
   "statusMode": "online",
   "name": "Discord Bot",
   "type": "WATCHING"
@@ -94,122 +96,152 @@ Edit `config.json`:
 npm start
 ```
 
+## Command Structure
+
+Commands are organized in categories:
+
+```
+commands/
+├── moderation/    (15 commands: ban, kick, mute, warn, etc.)
+├── general/       (8 commands: help, serverinfo, userinfo, etc.)
+├── economy/       (18 commands: daily, work, shop, etc.)
+├── games/         (9 commands: blackjack, slots, rps, etc.)
+├── level/         (3 commands: level, rank, setxp)
+├── setup/         (8 commands: ayarla, welcome, embed, etc.)
+└── utility/       (9 commands: role, ticket, nick, etc.)
+```
+
+## Help System
+
+Interactive help panel with dropdown menus:
+
+```
+.help                    # Main help panel
+.help ayarlar           # Server settings (admin only)
+```
+
+Features:
+- Category-based command organization
+- Server-specific category toggle (admin)
+- Dynamic command count display
+- Prefix-aware documentation
+
 ## Command Categories
 
 ### Moderation Commands
 ```
-!ban <user> [reason]
-!unban <userID> [reason]
-!kick <user> [reason]
-!mute <user> <duration> [reason]
-!unmute <user> [reason]
-!tempban <user> <duration> [reason]
-!softban <user> [reason]
-!warn <user> [reason]
-!clearwarns <user>
-!warnings [user]
-!history <user>
-!purge <amount> [@user]
-!lock [duration]
-!unlock
-!slowmode <seconds>
-!nick <user> <nickname>
-!nick reset <user>
-!role <add/remove> <user> <role>
-!massrole <add/remove> <role>
-!voicemove <#from> <#to>
-!nuke
+.ban <user> [reason]
+.unban <userID> [reason]
+.kick <user> [reason]
+.mute <user> <duration> [reason]
+.unmute <user> [reason]
+.tempban <user> <duration> [reason]
+.softban <user> [reason]
+.warn <user> [reason]
+.clearwarns <user>
+.warnings [user]
+.history <user>
+.purge <amount> [@user]
+.lock [duration]
+.unlock
+.slowmode <seconds>
+.nick <user> <nickname>
+.nick reset <user>
+.role <add/remove> <user> <role>
+.massrole <add/remove> <role>
+.voicemove <#from> <#to>
+.nuke
 ```
 
 ### Economy Commands
 ```
-!economy / !bal [@user]
-!daily
-!weekly
-!work
-!beg
-!crime
-!fish
-!mine
-!rob <user>
-!transfer <user> <amount>
-!deposit <amount/all>
-!withdraw <amount/all>
-!shop
-!buy <item>
-!sell <item>
-!inventory [@user]
-!blackjack <bet>
-!slots <bet>
-!roulette <bet> <red/black/green>
-!dice <bet> <guess>
-!coinflip <bet>
-!lottery [buy <amount>]
+.economy / .bal [@user]
+.daily
+.weekly
+.work
+.beg
+.crime
+.fish
+.mine
+.rob <user>
+.transfer <user> <amount>
+.deposit <amount/all>
+.withdraw <amount/all>
+.shop
+.buy <item>
+.sell <item>
+.inventory [@user]
+.blackjack <bet>
+.slots <bet>
+.roulette <bet> <red/black/green>
+.dice <bet> <guess>
+.coinflip <bet>
+.lottery [buy <amount>]
 ```
 
 ### Leveling Commands
 ```
-!level [@user]
-!rank
-!leaderboard
-!setxp <user> <amount>
+.level [@user]
+.rank
+.leaderboard
+.setxp <user> <amount>
 ```
 
 ### Information Commands
 ```
-!serverinfo
-!userinfo [@user]
-!avatar [@user]
-!stats
-!banlist
-!jobinfo [@user]
+.serverinfo
+.userinfo [@user]
+.avatar [@user]
+.stats
+.banlist
+.jobinfo [@user]
 ```
 
 ### Utility Commands
 ```
-!afk [reason]
-!8ball <question>
-!poll <question> | <option1> | <option2> | ...
-!trivia
-!rps
-!giveaway <duration> <winners> <prize>
-!quest
-!announce <#channel> <message>
-!yazdir <text>
-!embed <parameters>
-!embed docs
+.afk [reason]
+.8ball <question>
+.poll <question> | <option1> | <option2> | ...
+.trivia
+.rps
+.giveaway <duration> <winners> <prize>
+.quest
+.announce <#channel> <message>
+.yazdir <text>
+.embed <parameters>
+.embed docs
 ```
 
 ### Setup Commands
 ```
-!welcome set <#channel>
-!welcome message <text>
-!welcome off
-!autorole set <@role>
-!autorole off
-!reactionrole create <emoji> <@role>
-!ticketsetup panel
-!ticketsetup category <#category>
-!ticketsetup role <@role>
-!ticketsetup log <#channel>
-!ticket setup
+.welcome set <#channel>
+.welcome message <text>
+.welcome off
+.autorole set <@role>
+.autorole off
+.reactionrole create <emoji> <@role>
+.ticketsetup panel
+.ticketsetup category <#category>
+.ticketsetup role <@role>
+.ticketsetup log <#channel>
+.ticket setup
 ```
 
 ### Configuration (Admin)
 ```
-!ayarla
-!ayarla rol <category> <@role>
-!ayarla log <type> <#channel>
-!ayarla botkomut <only/change/off>
-!ayarla fotochat <#channel> <ac/kapa>
-!ayarla limit <ban/kick/mute> <count> <minutes>
-!ayarla limit <type> cooldown <seconds>
-!ayarla limit <type> <on/off>
+.ayarla                                    # View all settings
+.ayarla rol <category> <@role>            # Set permission roles
+.ayarla log <type> <#channel>             # Set log channels
+.ayarla botkomut <only/change/off>        # Bot command restrictions
+.ayarla fotochat <#channel> <ac/kapa>     # Photo-only channels
+.ayarla limit <ban/kick/mute> <count> <minutes>  # Rate limits
+.ayarla limit <type> cooldown <seconds>   # Command cooldowns
+.ayarla limit <type> <on/off>             # Toggle limits
 ```
 
 ## Permission Roles
 
-Configure via `!ayarla rol <category> <@role>`:
+Configure via `.ayarla rol <category> <@role>`:
 
 - `ban` - Ban/unban commands
 - `kick` - Kick command
@@ -224,7 +256,7 @@ Configure via `!ayarla rol <category> <@role>`:
 
 ## Logging Channels
 
-Configure via `!ayarla log <type> <#channel>`:
+Configure via `.ayarla log <type> <#channel>`:
 
 - `mesaj_log` - Message deletions
 - `ban_log` - Ban/unban/kick actions
@@ -240,9 +272,9 @@ Configure via `!ayarla log <type> <#channel>`:
 
 Prevents command spam and abuse:
 ```
-!ayarla limit ban 3 10
-!ayarla limit kick 10 2
-!ayarla limit mute 5 5
+.ayarla limit ban 3 10
+.ayarla limit kick 10 2
+.ayarla limit mute 5 5
 ```
 
 Format: `<command> <max_uses> <time_window_minutes>`
@@ -260,21 +292,44 @@ Users can appeal via automatic DM system.
 ### Input Validation
 
 All inputs sanitized:
-- Integer overflow protection
-- String length limits
-- URL validation
-- Channel name sanitization
-- Embed field limits
+- Integer overflow protection (MAX_SAFE_INTEGER checks)
+- String length limits (500 chars for reasons)
+- URL validation (http/https only)
+- User ID format validation (17-19 digits)
+- Embed field limits (25 fields max)
+- Role hierarchy checks
+- Self-action prevention
+- Bot protection
+
+### Turkish Character Support
+
+Commands work with Turkish characters:
+```
+.yardım = .yardim = .YARDIM
+.çalış = .calis = .ÇALIŞ
+.günlük = .gunluk = .GÜNLÜK
+```
+
+Automatic normalization: ç→c, ğ→g, ı→i, ö→o, ş→s, ü→u
 
 ## File Structure
 
 ```
-├── commands/          # 68 command files
+├── commands/
+│   ├── moderation/    # 15 moderation commands
+│   ├── general/       # 8 general commands
+│   ├── economy/       # 18 economy commands
+│   ├── games/         # 9 game commands
+│   ├── level/         # 3 leveling commands
+│   ├── setup/         # 8 setup commands
+│   └── utility/       # 9 utility commands
 ├── pattern/           # Configuration & data storage
 │   ├── guard.js       # Rate limiting logic
 │   ├── limitler.json  # Rate limit config
 │   ├── yetkirole.json # Permission roles
-│   └── logkanallari.json # Log channels
+│   ├── logkanallari.json # Log channels
+│   ├── commandsettings.json # Help panel settings
+│   └── cooldowns.json # Command cooldowns
 ├── index.js           # Main bot file
 ├── config.json        # Bot configuration
 └── .env              # Environment variables
@@ -294,21 +349,41 @@ JSON-based storage in `pattern/` directory:
 - `autorole.json` - Auto-role config
 - `reactionroles.json` - Reaction role mappings
 - `ticketconfig.json` - Ticket system config
+- `reminders.json` - Reminder system
+- `commandsettings.json` - Help panel category toggles
 
-## Security Notes
+## Security Improvements (Full Audit Applied)
 
-- Never commit `.env` file
-- Keep `TOKEN` and `OWNER_ID` secret
-- Pattern JSON files contain user data (gitignored)
-- Rate limits prevent abuse
-- All inputs validated and sanitized
-- Error handling on all async operations
+### Moderation Commands
+- Role hierarchy validation
+- Self-action prevention
+- Owner protection
+- Bot protection
+- User ID format validation (regex)
+- Error logging with context
+- Constant extraction (MAX_REASON_LENGTH, etc.)
+
+### Economy Commands
+- Integer overflow protection
+- Transfer amount limits (1-10,000)
+- Cooldown enforcement
+- Bot transfer prevention
+- Self-transfer prevention
+- Try-catch on file operations
+- Parse error handling
+
+### Setup Commands
+- Input sanitization
+- Channel/role validation
+- Permission checks
+- File write error handling
 
 ## Requirements
 
 - Node.js 16.9.0+
 - Discord.js 14.25.1+
 - Valid Discord Bot Token
+- ms package for duration parsing
 
 ## License
 
