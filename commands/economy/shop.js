@@ -4,7 +4,7 @@ const path = require("path");
 const config = require("../../config.json");
 const emojis = config.emojis;
 
-const shopPath = path.join(__dirname, "../pattern/shop.json");
+const shopPath = path.join(__dirname, "../../pattern/shop.json");
 
 function loadShop() {
   if (!fs.existsSync(shopPath)) {

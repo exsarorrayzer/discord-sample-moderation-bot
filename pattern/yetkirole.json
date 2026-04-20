@@ -12,5 +12,7 @@
   "unban": "",
   "kick": "",
   "embed": "",
-  "nick": ""
+  "nick": "",
+  "antilink_bypass": "",
+  "warn": ""
 }

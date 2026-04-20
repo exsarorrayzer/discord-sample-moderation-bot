@@ -4,7 +4,7 @@ const path = require("path");
 const config = require("../../config.json");
 const emojis = config.emojis;
 
-const rrPath = path.join(__dirname, "../pattern/reactionroles.json");
+const rrPath = path.join(__dirname, "../../pattern/reactionroles.json");
 
 function loadRR() {
   if (!fs.existsSync(rrPath)) {

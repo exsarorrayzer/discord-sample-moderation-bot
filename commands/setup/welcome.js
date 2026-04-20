@@ -4,7 +4,7 @@ const path = require("path");
 const config = require("../../config.json");
 const emojis = config.emojis;
 
-const welcomePath = path.join(__dirname, "../pattern/welcome.json");
+const welcomePath = path.join(__dirname, "../../pattern/welcome.json");
 
 function loadWelcome() {
   if (!fs.existsSync(welcomePath)) {

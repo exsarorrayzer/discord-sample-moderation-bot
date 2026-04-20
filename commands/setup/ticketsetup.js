@@ -4,7 +4,7 @@ const path = require("path");
 const config = require("../../config.json");
 const emojis = config.emojis;
 
-const ticketConfigPath = path.join(__dirname, "../pattern/ticketconfig.json");
+const ticketConfigPath = path.join(__dirname, "../../pattern/ticketconfig.json");
 
 function loadTicketConfig() {
   if (!fs.existsSync(ticketConfigPath)) {

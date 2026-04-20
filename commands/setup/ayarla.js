@@ -8,6 +8,7 @@ const logkanallari = require("../../pattern/logkanallari.json");
 const botkomut = require("../../pattern/botkomut.json");
 const limitler = require("../../pattern/limitler.json");
 const fotochat = require("../../pattern/fotochat.json");
+const antilink = require("../../pattern/antilink.json");
 
 module.exports = {
   name: "ayarla",
@@ -16,8 +17,6 @@ module.exports = {
     const isOwner = message.author.id === process.env.OWNER_ID;
     const isAdmin = message.member.permissions.has(PermissionFlagsBits.Administrator);
     const isYonetim = yetkirole.yonetim && message.member.roles.cache.has(yetkirole.yonetim);
-
-    const commandName = message.content.slice(config.prefix.length).trim().split(/ +/)[0].toLowerCase();
 
     if (!isOwner && !isAdmin && !isYonetim) {
       return message.reply(`${emojis.error} Bu komutu kullanmak için yetkiniz bulunmamaktadır.`);
@@ -34,7 +33,7 @@ module.exports = {
       .setFooter({ text: `Yetkili: ${message.author.tag}`, iconURL: message.author.displayAvatarURL({ dynamic: true }) })
       .setTimestamp();
 
-    if (!args[0] && !isAlias) {
+    if (!args[0]) {
       baseEmbed.setTitle(`💎 SISTEM YÖNETIM MERKEZI`)
         .setDescription("Sunucu üzerindeki tüm modüllerin durumlarını ve yapılandırmalarını buradan yönetebilirsiniz.");
       
@@ -48,6 +47,7 @@ module.exports = {
 
       const botField = `📍 **Kanal**: ${botkomut.kanal ? `<#${botkomut.kanal}>` : "🔴 `Pasif`"}\n🔒 **Durum**: \`${botkomut.only ? "Kısıtlı Mod" : "Serbest Mod"}\``;
       const fotoField = Object.entries(fotochat).filter(([k,v]) => v).map(([k]) => `📸 <#${k}>`).join(", ") || "🔴 `Kanal Yok`";
+      const antilinkField = `🔗 **Durum**: ${antilink.status ? "🟢 `Aktif`" : "🔴 `Kapalı`"}\n🔓 **Discord**: ${antilink.allowDiscord ? "✅ `İzinli`" : "❌ `Yasak`"}\n📋 **Whitelist**: ${antilink.whitelist.length > 0 ? `\`${antilink.whitelist.length}\` site` : "🔴 `Boş`"}`;
 
       baseEmbed.addFields(
         { name: `🎭 YETKİ ROLLERİ`, value: roleField || "Veri yok.", inline: true },
@@ -56,6 +56,7 @@ module.exports = {
         { name: `🤖 BOT KONTROL`, value: botField, inline: true },
         { name: `📸 FOTO CHAT`, value: fotoField, inline: true },
         { name: `\u200B`, value: `\u200B`, inline: false },
+        { name: `🔗 ANTİ-LİNK`, value: antilinkField, inline: true },
         { name: `🛡️ LIMITs`, value: limitField || "Veri yok.", inline: false }
       );
       
@@ -251,8 +252,121 @@ module.exports = {
         .setDescription(`**${target}** işlemi için koruma limiti başarıyla ayarlandı.`)
         .addFields({ name: "Limit Detayları", value: `\`${minute}\` dakika içinde maksimum \`${count}\` işlem yapılabilir.` });
       return message.channel.send({ embeds: [baseEmbed] });
+    } else if (type === "antilink") {
+      const action = args[1];
+
+      if (!action) {
+        baseEmbed.setDescription(`${emojis.info} Anti-Link Sistemi Komutları:`)
+          .addFields(
+            { name: "Aç/Kapat", value: "`ayarla antilink on/off`" },
+            { name: "Discord İzni", value: "`ayarla antilink discord on/off`" },
+            { name: "Whitelist Ekle", value: "`ayarla antilink whitelist add <domain>`" },
+            { name: "Whitelist Çıkar", value: "`ayarla antilink whitelist remove <domain>`" },
+            { name: "Whitelist Listele", value: "`ayarla antilink whitelist list`" }
+          );
+        return message.channel.send({ embeds: [baseEmbed] });
+      }
+
+      const onKeywords = ["ac", "enable", "on"];
+      const offKeywords = ["kapa", "disable", "off"];
+
+      if (onKeywords.includes(action)) {
+        antilink.status = true;
+        fs.writeFileSync(path.join(__dirname, "../..", "pattern", "antilink.json"), JSON.stringify(antilink, null, 2));
+        baseEmbed.setTitle(`${emojis.success} Anti-Link Aktif`)
+          .setDescription("Link paylaşımı engelleme sistemi başarıyla açıldı.");
+        return message.channel.send({ embeds: [baseEmbed] });
+      }
+
+      if (offKeywords.includes(action)) {
+        antilink.status = false;
+        fs.writeFileSync(path.join(__dirname, "../..", "pattern", "antilink.json"), JSON.stringify(antilink, null, 2));
+        baseEmbed.setTitle(`${emojis.success} Anti-Link Kapatıldı`)
+          .setDescription("Link paylaşımı engelleme sistemi başarıyla kapatıldı.");
+        return message.channel.send({ embeds: [baseEmbed] });
+      }
+
+      if (action === "discord") {
+        const discordAction = args[2];
+        
+        if (onKeywords.includes(discordAction)) {
+          antilink.allowDiscord = true;
+          fs.writeFileSync(path.join(__dirname, "../..", "pattern", "antilink.json"), JSON.stringify(antilink, null, 2));
+          baseEmbed.setTitle(`${emojis.success} Discord Linkleri İzinli`)
+            .setDescription("Discord davet linkleri artık paylaşılabilir.");
+          return message.channel.send({ embeds: [baseEmbed] });
+        }
+
+        if (offKeywords.includes(discordAction)) {
+          antilink.allowDiscord = false;
+          fs.writeFileSync(path.join(__dirname, "../..", "pattern", "antilink.json"), JSON.stringify(antilink, null, 2));
+          baseEmbed.setTitle(`${emojis.success} Discord Linkleri Yasaklandı`)
+            .setDescription("Discord davet linkleri artık engellenecek.");
+          return message.channel.send({ embeds: [baseEmbed] });
+        }
+      }
+
+      if (action === "whitelist") {
+        const subAction = args[2];
+        const domain = args[3];
+
+        if (subAction === "add") {
+          if (!domain) {
+            return message.reply(`${emojis.warn} Lütfen bir domain belirtiniz. Örnek: \`youtube.com\``);
+          }
+
+          const cleanDomain = domain.toLowerCase().replace(/^https?:\/\//, "").replace(/\/$/, "");
+
+          if (antilink.whitelist.includes(cleanDomain)) {
+            return message.reply(`${emojis.error} Bu domain zaten whitelist'te bulunuyor.`);
+          }
+
+          antilink.whitelist.push(cleanDomain);
+          fs.writeFileSync(path.join(__dirname, "../..", "pattern", "antilink.json"), JSON.stringify(antilink, null, 2));
+          
+          baseEmbed.setTitle(`${emojis.success} Whitelist Güncellendi`)
+            .setDescription(`**${cleanDomain}** whitelist'e eklendi.`)
+            .addFields({ name: "Toplam Whitelist", value: `\`${antilink.whitelist.length}\` site` });
+          return message.channel.send({ embeds: [baseEmbed] });
+        }
+
+        if (subAction === "remove" || subAction === "delete") {
+          if (!domain) {
+            return message.reply(`${emojis.warn} Lütfen bir domain belirtiniz.`);
+          }
+
+          const cleanDomain = domain.toLowerCase().replace(/^https?:\/\//, "").replace(/\/$/, "");
+          const index = antilink.whitelist.indexOf(cleanDomain);
+
+          if (index === -1) {
+            return message.reply(`${emojis.error} Bu domain whitelist'te bulunamadı.`);
+          }
+
+          antilink.whitelist.splice(index, 1);
+          fs.writeFileSync(path.join(__dirname, "../..", "pattern", "antilink.json"), JSON.stringify(antilink, null, 2));
+          
+          baseEmbed.setTitle(`${emojis.success} Whitelist Güncellendi`)
+            .setDescription(`**${cleanDomain}** whitelist'ten çıkarıldı.`)
+            .addFields({ name: "Toplam Whitelist", value: `\`${antilink.whitelist.length}\` site` });
+          return message.channel.send({ embeds: [baseEmbed] });
+        }
+
+        if (subAction === "list") {
+          if (antilink.whitelist.length === 0) {
+            return message.reply(`${emojis.info} Whitelist boş.`);
+          }
+
+          const list = antilink.whitelist.map((d, i) => `${i + 1}. \`${d}\``).join("\n");
+          baseEmbed.setTitle("📋 Whitelist Siteleri")
+            .setDescription(list)
+            .setColor("#3498DB");
+          return message.channel.send({ embeds: [baseEmbed] });
+        }
+      }
+
+      return message.reply(`${emojis.warn} Geçersiz komut. \`ayarla antilink\` yazarak yardım alabilirsiniz.`);
     } else {
-      return message.reply(`${emojis.error} Hatalı bir kategori belirttiniz. Lütfen \`log\`, \`rol\`, \`botkomut\`, \`limit\` veya \`fotochat\` seçiniz.`);
+      return message.reply(`${emojis.error} Hatalı bir kategori belirttiniz. Lütfen \`log\`, \`rol\`, \`botkomut\`, \`limit\`, \`fotochat\` veya \`antilink\` seçiniz.`);
     }
   }
 };

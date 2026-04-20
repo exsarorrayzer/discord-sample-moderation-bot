@@ -4,7 +4,7 @@ const path = require("path");
 const config = require("../../config.json");
 const emojis = config.emojis;
 
-const levelsPath = path.join(__dirname, "../pattern/levels.json");
+const levelsPath = path.join(__dirname, "../../pattern/levels.json");
 
 function loadLevels() {
   if (!fs.existsSync(levelsPath)) {

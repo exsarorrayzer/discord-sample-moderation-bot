@@ -4,7 +4,7 @@ const path = require("path");
 const config = require("../../config.json");
 const emojis = config.emojis;
 
-const autorolePath = path.join(__dirname, "../pattern/autorole.json");
+const autorolePath = path.join(__dirname, "../../pattern/autorole.json");
 
 function loadAutorole() {
   if (!fs.existsSync(autorolePath)) {

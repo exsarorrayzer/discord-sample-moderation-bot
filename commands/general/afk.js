@@ -4,7 +4,7 @@ const path = require("path");
 const config = require("../../config.json");
 const emojis = config.emojis;
 
-const afkPath = path.join(__dirname, "../pattern/afk.json");
+const afkPath = path.join(__dirname, "../../pattern/afk.json");
 
 function loadAFK() {
   if (!fs.existsSync(afkPath)) {

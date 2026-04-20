@@ -4,7 +4,7 @@ const path = require("path");
 const config = require("../../config.json");
 const emojis = config.emojis;
 
-const warningsPath = path.join(__dirname, "../pattern/warnings.json");
+const warningsPath = path.join(__dirname, "../../pattern/warnings.json");
 
 function loadWarnings() {
   if (!fs.existsSync(warningsPath)) return {};

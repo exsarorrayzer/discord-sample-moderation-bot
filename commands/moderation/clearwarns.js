@@ -5,7 +5,7 @@ const config = require("../../config.json");
 const emojis = config.emojis;
 const yetkirole = require("../../pattern/yetkirole.json");
 
-const warningsPath = path.join(__dirname, "../pattern/warnings.json");
+const warningsPath = path.join(__dirname, "../../pattern/warnings.json");
 
 function loadWarnings() {
   if (!fs.existsSync(warningsPath)) {

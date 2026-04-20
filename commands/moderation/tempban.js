@@ -7,7 +7,7 @@ const emojis = config.emojis;
 const yetkirole = require("../../pattern/yetkirole.json");
 const logkanallari = require("../../pattern/logkanallari.json");
 
-const tempbansPath = path.join(__dirname, "../pattern/tempbans.json");
+const tempbansPath = path.join(__dirname, "../../pattern/tempbans.json");
 
 function loadTempbans() {
   if (!fs.existsSync(tempbansPath)) {

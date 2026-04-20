@@ -4,8 +4,8 @@ const path = require("path");
 const config = require("../../config.json");
 const emojis = config.emojis;
 
-const lotteryPath = path.join(__dirname, "../pattern/lottery.json");
-const economyPath = path.join(__dirname, "../pattern/economy.json");
+const lotteryPath = path.join(__dirname, "../../pattern/lottery.json");
+const economyPath = path.join(__dirname, "../../pattern/economy.json");
 
 function loadLottery() {
   if (!fs.existsSync(lotteryPath)) {

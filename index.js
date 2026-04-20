@@ -1,5 +1,5 @@
 require("dotenv").config();
-const { Client, GatewayIntentBits, ActivityType, PermissionFlagsBits, Collection, EmbedBuilder, Partials } = require("discord.js");
+const { Client, GatewayIntentBits, ActivityType, PermissionFlagsBits, Collection, EmbedBuilder, Partials, ActionRowBuilder, StringSelectMenuBuilder, ButtonBuilder, ButtonStyle } = require("discord.js");
 const fs = require("fs");
 const path = require("path");
 const config = require("./config.json");
@@ -9,6 +9,7 @@ const logkanallari = require("./pattern/logkanallari.json");
 const botkomut = require("./pattern/botkomut.json");
 const limitler = require("./pattern/limitler.json");
 const fotochat = require("./pattern/fotochat.json");
+const antilink = require("./pattern/antilink.json");
 
 if (!process.env.TOKEN || !process.env.OWNER_ID) {
   console.error("CRITICAL: TOKEN or OWNER_ID not set in environment variables");
@@ -62,7 +63,7 @@ function loadCommands(dir) {
     if (stat.isDirectory()) {
       loadCommands(itemPath);
     } else if (item.endsWith('.js')) {
-      const command = require(itemPath);
+      const command = require(path.resolve(itemPath));
       client.commands.set(command.name, command);
     }
   }
@@ -162,6 +163,41 @@ client.on("messageCreate", (message) => {
     }).catch(() => {});
   }
 
+  const isOwner = message.author.id === process.env.OWNER_ID;
+  
+  if (antilink.status && !message.member.permissions.has(PermissionFlagsBits.Administrator) && !isOwner) {
+    const hasAntilinkBypass = yetkirole.antilink_bypass && message.member.roles.cache.has(yetkirole.antilink_bypass);
+    
+    if (!hasAntilinkBypass) {
+      const urlRegex = /(https?:\/\/[^\s]+)/gi;
+      const discordInviteRegex = /(discord\.gg\/|discord\.com\/invite\/|discordapp\.com\/invite\/)[a-zA-Z0-9]+/gi;
+      
+      const hasUrl = urlRegex.test(message.content);
+      const hasDiscordInvite = discordInviteRegex.test(message.content);
+
+      if (hasDiscordInvite && !antilink.allowDiscord) {
+        message.delete().catch(() => {});
+        return message.channel.send(`${emojis.error} **${message.author.tag}**, Discord davet linki paylaşımı yasaktır!`).then(msg => {
+          setTimeout(() => msg.delete().catch(() => {}), 5000);
+        }).catch(() => {});
+      }
+
+      if (hasUrl) {
+        const urls = message.content.match(urlRegex) || [];
+        const isWhitelisted = urls.every(url => {
+          return antilink.whitelist.some(whitelisted => url.toLowerCase().includes(whitelisted.toLowerCase()));
+        });
+
+        if (!isWhitelisted) {
+          message.delete().catch(() => {});
+          return message.channel.send(`${emojis.error} **${message.author.tag}**, link paylaşımı yasaktır!`).then(msg => {
+            setTimeout(() => msg.delete().catch(() => {}), 5000);
+          }).catch(() => {});
+        }
+      }
+    }
+  }
+
   if (!message.content.startsWith(config.prefix)) return;
 
   const args = message.content.slice(config.prefix.length).trim().split(/ +/);
@@ -196,7 +232,6 @@ client.on("messageCreate", (message) => {
   if (!command) return;
 
   const isAdmin = message.member.permissions.has(PermissionFlagsBits.Administrator);
-  const isOwner = message.author.id === process.env.OWNER_ID;
   const isYonetim = yetkirole.yonetim && message.member.roles.cache.has(yetkirole.yonetim);
 
   if (botkomut.only && !isOwner && !isAdmin && !isYonetim) {

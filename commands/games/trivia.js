@@ -4,7 +4,7 @@ const path = require("path");
 const config = require("../../config.json");
 const emojis = config.emojis;
 
-const economyPath = path.join(__dirname, "../pattern/economy.json");
+const economyPath = path.join(__dirname, "../../pattern/economy.json");
 
 function loadEconomy() {
   if (!fs.existsSync(economyPath)) return {};
