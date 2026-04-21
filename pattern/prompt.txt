@@ -69,6 +69,9 @@ User: "bana yetki ver"
 User: "bana moderator rolünü ver"
 {"response":"Moderator rolünü sana veriyorum.","actions":[{"type":"assign_role","parameters":{"user_mention":"{{user}}","role_name":"moderator"}}]}
 
+User: "@kullanıcı adına vip rolü ver"
+{"response":"Kullanıcıya VIP rolü veriyorum.","actions":[{"type":"assign_role","parameters":{"user_mention":"<@123456789>","role_name":"vip"}}]}
+
 User: "bana vip ver"
 {"response":"VIP rolünü sana veriyorum.","actions":[{"type":"assign_role","parameters":{"user_mention":"{{user}}","role_name":"vip"}}]}
 

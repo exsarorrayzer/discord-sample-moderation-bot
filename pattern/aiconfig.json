@@ -7,14 +7,6 @@
     "1414273938489606176": [
       {
         "role": "assistant",
-        "content": "{\n  \"intent\": null,\n  \"parameters\": {},\n  \"needs_clarification\": false,\n  \"text\": \"Selam!\",\n  \"memory_update\": {\n    \"identity\": {\n      \"lang\": \"tr\",\n      \"greeting\": \"Selam!\"\n    },\n    \"preferences\": {},\n    \"relationships\": {},\n    \"emotional_state\": {}\n  }\n}"
-      },
-      {
-        "role": "user",
-        "content": "selam"
-      },
-      {
-        "role": "assistant",
         "content": "{\r\n  \"response\": \"Selam! Nasıl yardımcı olabilirim?\",\r\n  \"actions\": []\r\n}"
       },
       {
@@ -88,6 +80,14 @@
       {
         "role": "assistant",
         "content": "{\n  \"response\": \"Kırmızı diye bir rol oluşturup rengini mavi yapıyorum ve banlama yetkisi ekliyorum.\",\n  \"actions\": [\n    {\n      \"type\": \"create_role\",\n      \"parameters\": {\n        \"role_name\": \"kirmizi\",\n        \"color\": \"#0000FF\",\n        \"permissions\": [\n          \"BanMembers\"\n        ]\n      }\n    }\n  ]\n}"
+      },
+      {
+        "role": "user",
+        "content": "bana dm at dm iceriginde nasil pankek yapicagimi anlat"
+      },
+      {
+        "role": "assistant",
+        "content": "{\n  \"response\": \"Sana nasıl pankek yapacağını anlatan bir DM gönderiyorum.\",\n  \"actions\": [\n    {\n      \"type\": \"send_dm\",\n      \"parameters\": {\n        \"user_mention\": \"{{user}}\",\n        \"message_text\": \"Pankek yapmak için basit bir tarif:\\n\\nMalzemeler:\\n- 1 su bardağı un\\n- 2 yemek kaşığı şeker\\n- 2 çay kaşığı kabartma tozu\\n- Yarım çay kaşığı tuz\\n- 1 su bardağı süt\\n- 1 adet yumurta\\n- 2 yemek kaşığı eritilmiş tereyağı veya sıvı yağ\\n\\nYapılışı:\\n1. Geniş bir kapta un, şeker, kabartma tozu ve tuzu karıştırın.\\n2. Ayrı bir kapta süt, yumurta ve yağı çırpın.\\n3. Islak karışımı kuru karışıma ekleyin ve pürüzsüz olana kadar karıştırın (topaklar kalabilir, sorun değil).\\n4. Yapışmaz bir tavayı orta ateşte ısıtın ve hafifçe yağlayın.\\n5. Karışımdan birer kepçe alarak tavaya dökün. Üzeri kabarcıklar oluşup kenarları kuruyana kadar pişirin.\\n6. Spatula ile çevirip diğer tarafını da altın rengi olana kadar pişirin.\\n7. Sıcak servis yapın! İsterseniz bal, çikolata sosu veya meyve ile süsleyebilirsiniz. Afiyet olsun!\"\n      }\n    }\n  ]\n}"
       }
     ]
   }

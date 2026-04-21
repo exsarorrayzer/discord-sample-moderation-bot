@@ -103,9 +103,17 @@ async function executeAction(action, message) {
   try {
     const params = action.parameters;
     
-    if (params.user_mention === "{{user}}") {
-      params.user_mention = message.author.id;
-    }
+    const getUserFromMention = (mention) => {
+      if (mention === "{{user}}") return message.member;
+      if (mention && mention.match(/^\d+$/)) {
+        return message.guild.members.cache.get(mention);
+      }
+      const mentionMatch = mention?.match(/^<@!?(\d+)>$/);
+      if (mentionMatch) {
+        return message.guild.members.cache.get(mentionMatch[1]);
+      }
+      return message.mentions.members.first();
+    };
     
     switch (action.type) {
       case "send_message":
@@ -158,7 +166,7 @@ async function executeAction(action, message) {
         return `❌ ${params.role_name} rolü bulunamadı`;
       
       case "assign_role":
-        const member = params.user_mention === message.author.id ? message.member : message.mentions.members.first();
+        const member = getUserFromMention(params.user_mention);
         const assignRole = message.guild.roles.cache.find(r => r.name === params.role_name);
         if (member && assignRole) {
           await member.roles.add(assignRole);
@@ -167,7 +175,7 @@ async function executeAction(action, message) {
         return `❌ Kullanıcı veya rol bulunamadı`;
       
       case "remove_role":
-        const rmMember = message.mentions.members.first();
+        const rmMember = getUserFromMention(params.user_mention);
         const rmRole = message.guild.roles.cache.find(r => r.name === params.role_name);
         if (rmMember && rmRole) {
           await rmMember.roles.remove(rmRole);
@@ -176,7 +184,7 @@ async function executeAction(action, message) {
         return `❌ Kullanıcı veya rol bulunamadı`;
       
       case "kick_member":
-        const kickMember = message.mentions.members.first();
+        const kickMember = getUserFromMention(params.user_mention);
         if (kickMember) {
           await kickMember.kick(params.reason);
           return `✅ ${kickMember.user.tag} sunucudan atıldı`;
@@ -184,7 +192,7 @@ async function executeAction(action, message) {
         return `❌ Kullanıcı bulunamadı`;
       
       case "ban_member":
-        const banMember = message.mentions.members.first();
+        const banMember = getUserFromMention(params.user_mention);
         if (banMember) {
           await banMember.ban({ reason: params.reason });
           return `✅ ${banMember.user.tag} sunucudan yasaklandı`;
@@ -196,7 +204,7 @@ async function executeAction(action, message) {
         return `✅ Kullanıcının yasağı kaldırıldı`;
       
       case "mute_member":
-        const muteMember = message.mentions.members.first();
+        const muteMember = getUserFromMention(params.user_mention);
         if (muteMember) {
           await muteMember.timeout(params.duration || 600000, params.reason);
           return `✅ ${muteMember.user.tag} susturuldu`;
@@ -204,7 +212,7 @@ async function executeAction(action, message) {
         return `❌ Kullanıcı bulunamadı`;
       
       case "unmute_member":
-        const unmuteMember = message.mentions.members.first();
+        const unmuteMember = getUserFromMention(params.user_mention);
         if (unmuteMember) {
           await unmuteMember.timeout(null);
           return `✅ ${unmuteMember.user.tag} susturması kaldırıldı`;
@@ -268,7 +276,7 @@ async function executeAction(action, message) {
         return `❌ Kanal bulunamadı`;
       
       case "change_nickname":
-        const nickMember = params.user_mention === message.author.id ? message.member : message.mentions.members.first();
+        const nickMember = getUserFromMention(params.user_mention);
         if (nickMember) {
           await nickMember.setNickname(params.nickname);
           return `✅ ${nickMember.user.tag} kullanıcısının adı ${params.nickname} olarak değiştirildi`;
@@ -276,7 +284,7 @@ async function executeAction(action, message) {
         return `❌ Kullanıcı bulunamadı`;
       
       case "move_member":
-        const moveMember = message.mentions.members.first();
+        const moveMember = getUserFromMention(params.user_mention);
         const targetVoice = message.guild.channels.cache.find(c => c.name === params.voice_channel && c.type === ChannelType.GuildVoice);
         if (moveMember && targetVoice) {
           await moveMember.voice.setChannel(targetVoice);
@@ -285,7 +293,7 @@ async function executeAction(action, message) {
         return `❌ Kullanıcı veya sesli kanal bulunamadı`;
       
       case "deafen_member":
-        const deafMember = message.mentions.members.first();
+        const deafMember = getUserFromMention(params.user_mention);
         if (deafMember) {
           await deafMember.voice.setDeaf(params.deafen !== false);
           return `✅ ${deafMember.user.tag} ${params.deafen !== false ? 'sağırlaştırıldı' : 'sağırlık kaldırıldı'}`;
@@ -293,7 +301,7 @@ async function executeAction(action, message) {
         return `❌ Kullanıcı bulunamadı`;
       
       case "voice_disconnect":
-        const dcMember = message.mentions.members.first();
+        const dcMember = getUserFromMention(params.user_mention);
         if (dcMember && dcMember.voice.channel) {
           await dcMember.voice.disconnect();
           return `✅ ${dcMember.user.tag} sesten atıldı`;
@@ -350,10 +358,10 @@ async function executeAction(action, message) {
         return `❌ Kanal bulunamadı`;
       
       case "send_dm":
-        const dmUser = params.user_mention === message.author.id ? message.author : message.mentions.users.first();
-        if (dmUser) {
-          await dmUser.send(params.message_text);
-          return `✅ ${dmUser.tag} kullanıcısına DM gönderildi`;
+        const dmMember = getUserFromMention(params.user_mention);
+        if (dmMember) {
+          await dmMember.user.send(params.message_text);
+          return `✅ ${dmMember.user.tag} kullanıcısına DM gönderildi`;
         }
         return `❌ Kullanıcı bulunamadı`;
       
