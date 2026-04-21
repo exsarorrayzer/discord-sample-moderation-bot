@@ -20,37 +20,37 @@ function saveSettings(data) {
 
 const categories = {
   moderation: {
-    name: "🛡️ Moderasyon",
+    name: `${emojis.shield} Moderasyon`,
     desc: "Sunucu yönetimi ve moderasyon komutları",
     commands: ["ban", "kick", "mute", "unmute", "warn", "clearwarns", "warnings", "tempban", "softban", "unban", "purge", "lock", "unlock", "slowmode", "nuke"]
   },
   general: {
-    name: "📋 Genel",
+    name: `${emojis.book} Genel`,
     desc: "Genel amaçlı kullanıcı komutları",
     commands: ["help", "ping", "serverinfo", "userinfo", "avatar", "afk", "poll", "remindme", "stats"]
   },
   economy: {
-    name: "💰 Ekonomi",
+    name: `${emojis.economy} Ekonomi`,
     desc: "Para kazanma ve harcama komutları",
     commands: ["bakiye", "daily", "weekly", "beg", "work", "crime", "fish", "mine", "deposit", "withdraw", "transfer", "rob", "buy", "sell", "shop", "inventory", "leaderboard", "lottery"]
   },
   games: {
-    name: "🎮 Oyunlar",
+    name: `${emojis.sparkle} Oyunlar`,
     desc: "Eğlence ve oyun komutları",
     commands: ["8ball", "coinflip", "dice", "rps", "blackjack", "slots", "roulette", "trivia", "quest"]
   },
   level: {
-    name: "📊 Seviye Sistemi",
+    name: `${emojis.level} Seviye Sistemi`,
     desc: "XP ve seviye takip komutları",
     commands: ["level", "rank", "setxp"]
   },
   setup: {
-    name: "⚙️ Kurulum",
+    name: `${emojis.paint} Kurulum`,
     desc: "Bot yapılandırma ve kurulum komutları",
     commands: ["ayarla", "welcome", "autorole", "reactionrole", "ticketsetup", "giveaway", "announce", "embed"]
   },
   utility: {
-    name: "🔧 Araçlar",
+    name: `${emojis.folder} Araçlar`,
     desc: "Yardımcı araçlar ve özellikler",
     commands: ["role", "massrole", "nick", "voicemove", "ticket", "history", "banlist", "jobinfo", "yazdir"]
   }
@@ -80,8 +80,8 @@ module.exports = {
       const row = new ActionRowBuilder().addComponents(selectMenu);
 
       const embed = new EmbedBuilder()
-        .setTitle("⚙️ Sunucu Ayarları - Komut Kategorileri")
-        .setDescription("Kategorileri açıp kapatarak hangi komutların sunucunuzda görüneceğini kontrol edebilirsiniz.\n\n✅ = Aktif\n❌ = Kapalı")
+        .setTitle(`${emojis.paint} Sunucu Ayarları - Komut Kategorileri`)
+        .setDescription(`Kategorileri açıp kapatarak hangi komutların sunucunuzda görüneceğini kontrol edebilirsiniz.\n\n${emojis.success} = Aktif\n${emojis.error} = Kapalı`)
         .setColor("#3498DB")
         .setFooter({ text: "Sadece yöneticiler bu ayarları değiştirebilir" })
         .setTimestamp();
@@ -93,7 +93,7 @@ module.exports = {
 
     const selectMenu = new StringSelectMenuBuilder()
       .setCustomId("help_category")
-      .setPlaceholder("📂 Kategori seçin")
+      .setPlaceholder(`${emojis.folder} Kategori seçin`)
       .addOptions(
         activeCategories.map(key => ({
           label: categories[key].name,
@@ -108,7 +108,7 @@ module.exports = {
     const settingsButton = new ButtonBuilder()
       .setCustomId("help_settings_btn")
       .setLabel("Sunucu Ayarları")
-      .setEmoji("⚙️")
+      .setEmoji(emojis.paint)
       .setStyle(ButtonStyle.Secondary)
       .setDisabled(!isOwner && !isAdmin);
 

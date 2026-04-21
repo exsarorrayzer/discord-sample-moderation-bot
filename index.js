@@ -12,6 +12,7 @@ const fotochat = require("./pattern/fotochat.json");
 const antilink = require("./pattern/antilink.json");
 const blacklist = require("./pattern/blacklist.json");
 const protection = require("./pattern/protection.json");
+const { normalizeText } = require("./utils/textFilter");
 
 if (!process.env.TOKEN || !process.env.OWNER_ID) {
   console.error("CRITICAL: TOKEN or OWNER_ID not set in environment variables");
@@ -302,19 +303,6 @@ client.on("messageCreate", (message) => {
   const rawCommandName = args.shift();
   
   if (rawCommandName.length > 50) return;
-
-  function normalizeText(text) {
-    const turkishMap = {
-      'ç': 'c', 'Ç': 'c',
-      'ğ': 'g', 'Ğ': 'g',
-      'ı': 'i', 'I': 'i', 'İ': 'i',
-      'ö': 'o', 'Ö': 'o',
-      'ş': 's', 'Ş': 's',
-      'ü': 'u', 'Ü': 'u'
-    };
-    
-    return text.split('').map(char => turkishMap[char] || char).join('').toLowerCase();
-  }
 
   const commandName = normalizeText(rawCommandName);
 
