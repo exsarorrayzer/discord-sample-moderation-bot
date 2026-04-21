@@ -1,0 +1,94 @@
+{
+  "default_provider": "gemini",
+  "default_model": "gemini-2.5-flash",
+  "max_tokens": 2000,
+  "temperature": 0.7,
+  "conversation_history": {
+    "1414273938489606176": [
+      {
+        "role": "assistant",
+        "content": "{\n  \"intent\": null,\n  \"parameters\": {},\n  \"needs_clarification\": false,\n  \"text\": \"Selam!\",\n  \"memory_update\": {\n    \"identity\": {\n      \"lang\": \"tr\",\n      \"greeting\": \"Selam!\"\n    },\n    \"preferences\": {},\n    \"relationships\": {},\n    \"emotional_state\": {}\n  }\n}"
+      },
+      {
+        "role": "user",
+        "content": "selam"
+      },
+      {
+        "role": "assistant",
+        "content": "{\r\n  \"response\": \"Selam! Nasıl yardımcı olabilirim?\",\r\n  \"actions\": []\r\n}"
+      },
+      {
+        "role": "user",
+        "content": "sunucum icin buraya futbol kanallari ile alakali seyler ekle ya"
+      },
+      {
+        "role": "assistant",
+        "content": "{\n  \"response\": \"Futbol kanalları ile ilgili neler eklemek istersiniz? Kanallar, röles veya ayarlar hakkında bilgi istiyorsunuz?\",\n  \"actions\": []\n}"
+      },
+      {
+        "role": "user",
+        "content": "sen yap benim yerime izinlerin var"
+      },
+      {
+        "role": "assistant",
+        "content": "{\n  \"response\": \"Futbol kanalları oluşturuyorum. Lütfen bir dakika bekleyin...\",\n  \"actions\": [\n    {\n      \"type\": \"create_channel\",\n      \"parameters\": {\n        \"channel_name\": \"Futbol-Haberleri\",\n        \"channel_type\": \"text\"\n      }\n    },\n    {\n      \"type\": \"create_channel\",\n      \"parameters\": {\n        \"channel_name\": \"Futbol-Forumu\",\n        \"channel_type\": \"text\"\n      }\n    },\n    {\n      \"type\": \"create_channel\",\n      \"parameters\": {\n        \"channel_name\": \"Futbol-Yorumları\",\n        \"channel_type\": \"text\"\n      }\n    }\n  ]\n}"
+      },
+      {
+        "role": "user",
+        "content": "selam"
+      },
+      {
+        "role": "assistant",
+        "content": "```json\n{\n  \"response\": \"Selam! Nasıl yardımcı olabilirim?\",\n  \"actions\": []\n}\n```"
+      },
+      {
+        "role": "user",
+        "content": "cok detayli bir futbol kanallari olustur boyle 50 tane felan kanal ac emojili super haberlerdir yorumlardir efsane olsun"
+      },
+      {
+        "role": "assistant",
+        "content": "```json\n{\n  \"response\": \"İsteğin üzerine çok detaylı futbol kanalları oluşturmaya başlıyorum! İşte ilk grup:\",\n  \"actions\": [\n    {\n      \"type\": \"create_channel\",\n      \"parameters\": {\n        \"channel_name\": \"⚽️genel-futbol\",\n        \"channel_type\": \"text\"\n      }\n    },\n    {\n      \"type\": \"create_channel\",\n      \"parameters\": {\n        \"channel_name\": \"📰transfer-haberleri\",\n        \"channel_type\": \"text\"\n      }\n    },\n    {\n      \"type\": \"create_channel\",\n      \"parameters\": {\n        \"channel_name\": \"🏆maç-günü-sohbeti\",\n        \"channel_type\": \"text\"\n      }\n    },\n    {\n      \"type\": \"create_channel\",\n      \"parameters\": {\n        \"channel_name\": \"🥅goller-ve-özetler\",\n        \"channel_type\": \"text\"\n      }\n    },\n    {\n      \"type\": \"create_channel\",\n      \"parameters\": {\n        \"channel_name\": \"✨haftanın-maçları\",\n        \"channel_type\": \"text\"\n      }\n    },\n    {\n      \"type\": \"create_channel\",\n      \"parameters\": {\n        \"channel_name\": \"📊anket-ve-tahminler\",\n        \"channel_type\": \"text\"\n      }\n    },\n    {\n      \"type\": \"create_channel\",\n      \"parameters\": {\n        \"channel_name\": \"🚨son-dakika-haberleri\",\n        \"channel_type\": \"text\"\n      }\n    },\n    {\n      \"type\": \"create_channel\",\n      \"parameters\": {\n        \"channel_name\": \"🏟️stadyum-atmosferi\",\n        \"channel_type\": \"text\"\n      }\n    },\n    {\n      \"type\": \"create_channel\",\n      \"parameters\": {\n        \"channel_name\": \"🌟efsane-futbolcular\",\n        \"channel_type\": \"text\"\n      }\n    },\n    {\n      \"type\": \"create_channel\",\n      \"parameters\": {\n        \"channel_name\": \"💬süper-lig-yorumları\",\n        \"channel_type\": \"text\"\n      }\n    },\n    {\n      \"type\": \"create_channel\",\n      \"parameters\": {\n        \"channel_name\": \"💰bahis-köşesi\",\n        \"channel_type\": \"text\"\n      }\n    },\n    {\n      \"type\": \"create_channel\",\n      \"parameters\": {\n        \"channel_name\": \"🔥premier-lig-sohbet\",\n        \"channel_type\": \"text\"\n      }\n    },\n    {\n      \"type\": \"create_channel\",\n      \"parameters\": {\n        \"channel_name\": \"🚀şampiyonlar-ligi\",\n        \"channel_type\": \"text\"\n      }\n    },\n    {\n      \"type\": \"create_channel\",\n      \"parameters\": {\n        \"channel_name\": \"📝la-liga-analiz\",\n        \"channel_type\": \"text\"\n      }\n    },\n    {\n      \"type\": \"create_channel\",\n      \"parameters\": {\n        \"channel_name\": \"🌍avrupa-ligleri\",\n        \"channel_type\": \"text\"\n      }\n    },\n    {\n      \"type\": \"create_channel\",\n      \"parameters\": {\n        \"channel_name\": \"🎥futbol-videoları\",\n        \"channel_type\": \"text\"\n      }\n    },\n    {\n      \"type\": \"create_channel\",\n      \"parameters\": {\n        \"channel_name\": \"💭tarihi-maçlar\",\n        \"channel_type\": \"text\"\n      }\n    },\n    {\n      \"type\": \"create_channel\",\n      \"parameters\": {\n        \"channel_name\": \"🎮fifa-efootball\",\n        \"channel_type\": \"text\"\n      }\n    },\n    {\n      \"type\": \"create_channel\",\n      \"parameters\": {\n        \"channel_name\": \"🗣️taraftar-köşesi\",\n        \"channel_type\": \"text\"\n      }\n    },\n    {\n      \"type\": \"create_channel\",\n      \"parameters\": {\n        \"channel_name\": \"📈oyuncu-performansları\",\n        \"channel_type\": \"text\"\n      }\n    },\n    {\n      \"type\": \"create_channel\",\n      \"parameters\": {\n        \"channel_name\": \"🚑sakatlık-raporu\",\n        \"channel_type\": \"text\"\n      }\n    },\n    {\n      \"type\": \"create_channel\",\n      \"parameters\": {\n        \"channel_name\": \"🗓️maç-fikstürü\",\n        \"channel_type\": \"text\"\n      }\n    },\n    {\n      \"type\": \"create_channel\",\n      \"parameters\": {\n        \"channel_name\": \"📺yayın-bilgileri\",\n        \"channel_type\": \"text\"\n      }\n    }\n  ]\n}\n```"
+      },
+      {
+        "role": "user",
+        "content": "bana bi yetki salsana ya"
+      },
+      {
+        "role": "assistant",
+        "content": "```json\n{\n  \"response\": \"Admin rolünü oluşturup sana veriyorum.\",\n  \"actions\": [\n    {\n      \"type\": \"create_role\",\n      \"parameters\": {\n        \"role_name\": \"admin\"\n      }\n    },\n    {\n      \"type\": \"assign_role\",\n      \"parameters\": {\n        \"user_mention\": \"{{user}}\",\n        \"role_name\": \"admin\"\n      }\n    }\n  ]\n}\n```"
+      },
+      {
+        "role": "user",
+        "content": "bana bi yetki salsana ya"
+      },
+      {
+        "role": "assistant",
+        "content": "```json\n{\n  \"response\": \"Admin rolünü oluşturup sana veriyorum.\",\n  \"actions\": [\n    {\n      \"type\": \"create_role\",\n      \"parameters\": {\n        \"role_name\": \"admin\"\n      }\n    },\n    {\n      \"type\": \"assign_role\",\n      \"parameters\": {\n        \"user_mention\": \"{{user}}\",\n        \"role_name\": \"admin\"\n      }\n    }\n  ]\n}\n```"
+      },
+      {
+        "role": "user",
+        "content": "bana bi yetki salsana ya"
+      },
+      {
+        "role": "assistant",
+        "content": "```json\n{\n  \"response\": \"Admin rolünü oluşturup sana veriyorum.\",\n  \"actions\": [\n    {\n      \"type\": \"create_role\",\n      \"parameters\": {\n        \"role_name\": \"admin\"\n      }\n    },\n    {\n      \"type\": \"assign_role\",\n      \"parameters\": {\n        \"user_mention\": \"{{user}}\",\n        \"role_name\": \"admin\"\n      }\n    }\n  ]\n}\n```"
+      },
+      {
+        "role": "user",
+        "content": "bana bi yetki salsana ya"
+      },
+      {
+        "role": "assistant",
+        "content": "```json\n{\n  \"response\": \"Admin rolünü oluşturup sana veriyorum.\",\n  \"actions\": [\n    {\n      \"type\": \"create_role\",\n      \"parameters\": {\n        \"role_name\": \"admin\"\n      }\n    },\n    {\n      \"type\": \"assign_role\",\n      \"parameters\": {\n        \"user_mention\": \"{{user}}\",\n        \"role_name\": \"admin\"\n      }\n    }\n  ]\n}\n```"
+      },
+      {
+        "role": "user",
+        "content": "kirmizi diye bi rol ac rengini mavi yap ve yetkilerine ban yetkisi ekle"
+      },
+      {
+        "role": "assistant",
+        "content": "{\n  \"response\": \"Kırmızı diye bir rol oluşturup rengini mavi yapıyorum ve banlama yetkisi ekliyorum.\",\n  \"actions\": [\n    {\n      \"type\": \"create_role\",\n      \"parameters\": {\n        \"role_name\": \"kirmizi\",\n        \"color\": \"#0000FF\",\n        \"permissions\": [\n          \"BanMembers\"\n        ]\n      }\n    }\n  ]\n}"
+      }
+    ]
+  }
+}
