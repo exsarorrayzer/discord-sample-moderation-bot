@@ -28,8 +28,8 @@ function getUser(userId) {
 }
 
 module.exports = {
-  name: "economy",
-  aliases: ["eco", "ekonomi"],
+  name: "bakiye",
+  aliases: ["economy", "cuzdan"],
   execute(message, args) {
     const action = args[0]?.toLowerCase();
 

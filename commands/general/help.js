@@ -32,7 +32,7 @@ const categories = {
   economy: {
     name: "💰 Ekonomi",
     desc: "Para kazanma ve harcama komutları",
-    commands: ["economy", "daily", "weekly", "beg", "work", "crime", "fish", "mine", "deposit", "withdraw", "transfer", "rob", "buy", "sell", "shop", "inventory", "leaderboard", "lottery"]
+    commands: ["bakiye", "daily", "weekly", "beg", "work", "crime", "fish", "mine", "deposit", "withdraw", "transfer", "rob", "buy", "sell", "shop", "inventory", "leaderboard", "lottery"]
   },
   games: {
     name: "🎮 Oyunlar",
