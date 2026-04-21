@@ -211,6 +211,152 @@ async function executeAction(action, message) {
         }
         return `❌ Kullanıcı bulunamadı`;
       
+      case "edit_channel":
+        const editChannel = message.guild.channels.cache.find(c => c.name === params.channel_name);
+        if (editChannel) {
+          const editOptions = {};
+          if (params.new_name) editOptions.name = params.new_name;
+          if (params.topic) editOptions.topic = params.topic;
+          if (params.slowmode !== undefined) editOptions.rateLimitPerUser = params.slowmode;
+          if (params.nsfw !== undefined) editOptions.nsfw = params.nsfw;
+          await editChannel.edit(editOptions);
+          return `✅ ${params.channel_name} kanalı güncellendi`;
+        }
+        return `❌ ${params.channel_name} kanalı bulunamadı`;
+      
+      case "move_channel":
+        const moveChannel = message.guild.channels.cache.find(c => c.name === params.channel_name);
+        const targetCategory = message.guild.channels.cache.find(c => c.name === params.category_name && c.type === ChannelType.GuildCategory);
+        if (moveChannel && targetCategory) {
+          await moveChannel.setParent(targetCategory.id);
+          return `✅ ${params.channel_name} kanalı ${params.category_name} kategorisine taşındı`;
+        }
+        return `❌ Kanal veya kategori bulunamadı`;
+      
+      case "create_category":
+        await message.guild.channels.create({ name: params.category_name, type: ChannelType.GuildCategory });
+        return `✅ ${params.category_name} kategorisi oluşturuldu`;
+      
+      case "delete_category":
+        const delCategory = message.guild.channels.cache.find(c => c.name === params.category_name && c.type === ChannelType.GuildCategory);
+        if (delCategory) {
+          await delCategory.delete();
+          return `✅ ${params.category_name} kategorisi silindi`;
+        }
+        return `❌ ${params.category_name} kategorisi bulunamadı`;
+      
+      case "delete_messages":
+        const purgeChannel = message.guild.channels.cache.find(c => c.name === params.channel_name);
+        if (purgeChannel && purgeChannel.isTextBased()) {
+          const amount = Math.min(params.amount || 10, 100);
+          await purgeChannel.bulkDelete(amount, true);
+          return `✅ ${params.channel_name} kanalından ${amount} mesaj silindi`;
+        }
+        return `❌ Kanal bulunamadı veya metin kanalı değil`;
+      
+      case "pin_message":
+        const pinChannel = message.guild.channels.cache.find(c => c.name === params.channel_name);
+        if (pinChannel && pinChannel.isTextBased()) {
+          const messages = await pinChannel.messages.fetch({ limit: 10 });
+          const targetMsg = messages.find(m => m.content.includes(params.message_content));
+          if (targetMsg) {
+            await targetMsg.pin();
+            return `✅ Mesaj sabitlendi`;
+          }
+          return `❌ Mesaj bulunamadı`;
+        }
+        return `❌ Kanal bulunamadı`;
+      
+      case "change_nickname":
+        const nickMember = params.user_mention === message.author.id ? message.member : message.mentions.members.first();
+        if (nickMember) {
+          await nickMember.setNickname(params.nickname);
+          return `✅ ${nickMember.user.tag} kullanıcısının adı ${params.nickname} olarak değiştirildi`;
+        }
+        return `❌ Kullanıcı bulunamadı`;
+      
+      case "move_member":
+        const moveMember = message.mentions.members.first();
+        const targetVoice = message.guild.channels.cache.find(c => c.name === params.voice_channel && c.type === ChannelType.GuildVoice);
+        if (moveMember && targetVoice) {
+          await moveMember.voice.setChannel(targetVoice);
+          return `✅ ${moveMember.user.tag} kullanıcısı ${params.voice_channel} kanalına taşındı`;
+        }
+        return `❌ Kullanıcı veya sesli kanal bulunamadı`;
+      
+      case "deafen_member":
+        const deafMember = message.mentions.members.first();
+        if (deafMember) {
+          await deafMember.voice.setDeaf(params.deafen !== false);
+          return `✅ ${deafMember.user.tag} ${params.deafen !== false ? 'sağırlaştırıldı' : 'sağırlık kaldırıldı'}`;
+        }
+        return `❌ Kullanıcı bulunamadı`;
+      
+      case "voice_disconnect":
+        const dcMember = message.mentions.members.first();
+        if (dcMember && dcMember.voice.channel) {
+          await dcMember.voice.disconnect();
+          return `✅ ${dcMember.user.tag} sesten atıldı`;
+        }
+        return `❌ Kullanıcı bulunamadı veya sesli kanalda değil`;
+      
+      case "edit_server":
+        const editOptions = {};
+        if (params.name) editOptions.name = params.name;
+        if (params.icon) editOptions.icon = params.icon;
+        await message.guild.edit(editOptions);
+        return `✅ Sunucu ayarları güncellendi`;
+      
+      case "create_invite":
+        const inviteChannel = message.guild.channels.cache.find(c => c.name === params.channel_name);
+        if (inviteChannel) {
+          const invite = await inviteChannel.createInvite({
+            maxAge: params.max_age || 86400,
+            maxUses: params.max_uses || 0
+          });
+          return `✅ Davet linki oluşturuldu: ${invite.url}`;
+        }
+        return `❌ Kanal bulunamadı`;
+      
+      case "create_webhook":
+        const webhookChannel = message.guild.channels.cache.find(c => c.name === params.channel_name);
+        if (webhookChannel && webhookChannel.isTextBased()) {
+          const webhook = await webhookChannel.createWebhook({ name: params.webhook_name });
+          return `✅ Webhook oluşturuldu: ${webhook.url}`;
+        }
+        return `❌ Kanal bulunamadı`;
+      
+      case "create_emoji":
+        const emoji = await message.guild.emojis.create({ attachment: params.emoji_url, name: params.emoji_name });
+        return `✅ ${emoji.name} emojisi oluşturuldu`;
+      
+      case "delete_emoji":
+        const delEmoji = message.guild.emojis.cache.find(e => e.name === params.emoji_name);
+        if (delEmoji) {
+          await delEmoji.delete();
+          return `✅ ${params.emoji_name} emojisi silindi`;
+        }
+        return `❌ Emoji bulunamadı`;
+      
+      case "create_thread":
+        const threadChannel = message.guild.channels.cache.find(c => c.name === params.channel_name);
+        if (threadChannel && threadChannel.isTextBased()) {
+          const thread = await threadChannel.threads.create({
+            name: params.thread_name,
+            autoArchiveDuration: params.auto_archive || 60
+          });
+          return `✅ ${params.thread_name} thread'i oluşturuldu`;
+        }
+        return `❌ Kanal bulunamadı`;
+      
+      case "send_dm":
+        const dmUser = params.user_mention === message.author.id ? message.author : message.mentions.users.first();
+        if (dmUser) {
+          await dmUser.send(params.message_text);
+          return `✅ ${dmUser.tag} kullanıcısına DM gönderildi`;
+        }
+        return `❌ Kullanıcı bulunamadı`;
+      
       default:
         return `❌ Bilinmeyen aksiyon: ${action.type}`;
     }

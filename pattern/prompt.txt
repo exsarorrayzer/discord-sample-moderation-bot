@@ -24,6 +24,10 @@ Available Actions:
 - send_message: channel_name, message_text
 - create_channel: channel_name, channel_type (text/voice)
 - delete_channel: channel_name
+- edit_channel: channel_name, new_name (optional), topic (optional), slowmode (optional), nsfw (optional)
+- move_channel: channel_name, category_name
+- create_category: category_name
+- delete_category: category_name
 - create_role: role_name, color (optional), permissions (optional array)
 - edit_role: role_name, color (optional), permissions (optional array)
 - delete_role: role_name
@@ -34,6 +38,19 @@ Available Actions:
 - unban_member: user_id
 - mute_member: user_mention, duration (optional)
 - unmute_member: user_mention
+- delete_messages: channel_name, amount (max 100)
+- pin_message: channel_name, message_content
+- change_nickname: user_mention, nickname
+- move_member: user_mention, voice_channel
+- deafen_member: user_mention, deafen (true/false)
+- voice_disconnect: user_mention
+- edit_server: name (optional), icon (optional)
+- create_invite: channel_name, max_age (optional), max_uses (optional)
+- create_webhook: channel_name, webhook_name
+- create_emoji: emoji_url, emoji_name
+- delete_emoji: emoji_name
+- create_thread: channel_name, thread_name, auto_archive (optional)
+- send_dm: user_mention, message_text
 
 EXAMPLES - STUDY THESE CAREFULLY:
 
@@ -69,6 +86,24 @@ User: "admin rolüne tüm yetkileri ver"
 
 User: "moderator rolüne kanal yönetme ve üye atma yetkisi ver"
 {"response":"Moderator rolüne kanal yönetme ve üye atma yetkisi veriyorum.","actions":[{"type":"edit_role","parameters":{"role_name":"moderator","permissions":["ManageChannels","KickMembers"]}}]}
+
+User: "genel kanalına 10 saniye slowmode koy"
+{"response":"Genel kanalına 10 saniye slowmode koyuyorum.","actions":[{"type":"edit_channel","parameters":{"channel_name":"genel","slowmode":10}}]}
+
+User: "sohbet kanalından son 50 mesajı sil"
+{"response":"Sohbet kanalından son 50 mesajı siliyorum.","actions":[{"type":"delete_messages","parameters":{"channel_name":"sohbet","amount":50}}]}
+
+User: "oyun kategorisi oluştur ve oyun-1 kanalını oraya taşı"
+{"response":"Oyun kategorisi oluşturup oyun-1 kanalını oraya taşıyorum.","actions":[{"type":"create_category","parameters":{"category_name":"oyun"}},{"type":"move_channel","parameters":{"channel_name":"oyun-1","category_name":"oyun"}}]}
+
+User: "benim adımı Patron yap"
+{"response":"Adını Patron yapıyorum.","actions":[{"type":"change_nickname","parameters":{"user_mention":"{{user}}","nickname":"Patron"}}]}
+
+User: "genel kanalı için davet linki oluştur"
+{"response":"Genel kanalı için davet linki oluşturuyorum.","actions":[{"type":"create_invite","parameters":{"channel_name":"genel","max_age":86400,"max_uses":10}}]}
+
+User: "bana dm at"
+{"response":"Sana DM atıyorum.","actions":[{"type":"send_dm","parameters":{"user_mention":"{{user}}","message_text":"Merhaba! Nasıl yardımcı olabilirim?"}}]}
 
 User: "50 futbol kanalı oluştur"
 {"response":"50 futbol kanalı oluşturuyorum.","actions":[{"type":"create_channel","parameters":{"channel_name":"futbol-1","channel_type":"text"}},{"type":"create_channel","parameters":{"channel_name":"futbol-2","channel_type":"text"}},{"type":"create_channel","parameters":{"channel_name":"futbol-3","channel_type":"text"}},{"type":"create_channel","parameters":{"channel_name":"futbol-4","channel_type":"text"}},{"type":"create_channel","parameters":{"channel_name":"futbol-5","channel_type":"text"}},{"type":"create_channel","parameters":{"channel_name":"futbol-6","channel_type":"text"}},{"type":"create_channel","parameters":{"channel_name":"futbol-7","channel_type":"text"}},{"type":"create_channel","parameters":{"channel_name":"futbol-8","channel_type":"text"}},{"type":"create_channel","parameters":{"channel_name":"futbol-9","channel_type":"text"}},{"type":"create_channel","parameters":{"channel_name":"futbol-10","channel_type":"text"}},{"type":"create_channel","parameters":{"channel_name":"futbol-11","channel_type":"text"}},{"type":"create_channel","parameters":{"channel_name":"futbol-12","channel_type":"text"}},{"type":"create_channel","parameters":{"channel_name":"futbol-13","channel_type":"text"}},{"type":"create_channel","parameters":{"channel_name":"futbol-14","channel_type":"text"}},{"type":"create_channel","parameters":{"channel_name":"futbol-15","channel_type":"text"}},{"type":"create_channel","parameters":{"channel_name":"futbol-16","channel_type":"text"}},{"type":"create_channel","parameters":{"channel_name":"futbol-17","channel_type":"text"}},{"type":"create_channel","parameters":{"channel_name":"futbol-18","channel_type":"text"}},{"type":"create_channel","parameters":{"channel_name":"futbol-19","channel_type":"text"}},{"type":"create_channel","parameters":{"channel_name":"futbol-20","channel_type":"text"}},{"type":"create_channel","parameters":{"channel_name":"futbol-21","channel_type":"text"}},{"type":"create_channel","parameters":{"channel_name":"futbol-22","channel_type":"text"}},{"type":"create_channel","parameters":{"channel_name":"futbol-23","channel_type":"text"}},{"type":"create_channel","parameters":{"channel_name":"futbol-24","channel_type":"text"}},{"type":"create_channel","parameters":{"channel_name":"futbol-25","channel_type":"text"}},{"type":"create_channel","parameters":{"channel_name":"futbol-26","channel_type":"text"}},{"type":"create_channel","parameters":{"channel_name":"futbol-27","channel_type":"text"}},{"type":"create_channel","parameters":{"channel_name":"futbol-28","channel_type":"text"}},{"type":"create_channel","parameters":{"channel_name":"futbol-29","channel_type":"text"}},{"type":"create_channel","parameters":{"channel_name":"futbol-30","channel_type":"text"}},{"type":"create_channel","parameters":{"channel_name":"futbol-31","channel_type":"text"}},{"type":"create_channel","parameters":{"channel_name":"futbol-32","channel_type":"text"}},{"type":"create_channel","parameters":{"channel_name":"futbol-33","channel_type":"text"}},{"type":"create_channel","parameters":{"channel_name":"futbol-34","channel_type":"text"}},{"type":"create_channel","parameters":{"channel_name":"futbol-35","channel_type":"text"}},{"type":"create_channel","parameters":{"channel_name":"futbol-36","channel_type":"text"}},{"type":"create_channel","parameters":{"channel_name":"futbol-37","channel_type":"text"}},{"type":"create_channel","parameters":{"channel_name":"futbol-38","channel_type":"text"}},{"type":"create_channel","parameters":{"channel_name":"futbol-39","channel_type":"text"}},{"type":"create_channel","parameters":{"channel_name":"futbol-40","channel_type":"text"}},{"type":"create_channel","parameters":{"channel_name":"futbol-41","channel_type":"text"}},{"type":"create_channel","parameters":{"channel_name":"futbol-42","channel_type":"text"}},{"type":"create_channel","parameters":{"channel_name":"futbol-43","channel_type":"text"}},{"type":"create_channel","parameters":{"channel_name":"futbol-44","channel_type":"text"}},{"type":"create_channel","parameters":{"channel_name":"futbol-45","channel_type":"text"}},{"type":"create_channel","parameters":{"channel_name":"futbol-46","channel_type":"text"}},{"type":"create_channel","parameters":{"channel_name":"futbol-47","channel_type":"text"}},{"type":"create_channel","parameters":{"channel_name":"futbol-48","channel_type":"text"}},{"type":"create_channel","parameters":{"channel_name":"futbol-49","channel_type":"text"}},{"type":"create_channel","parameters":{"channel_name":"futbol-50","channel_type":"text"}}]}
