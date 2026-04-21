@@ -1,6 +1,6 @@
 const fs = require("fs");
 const path = require("path");
-const { PermissionFlagsBits, EmbedBuilder } = require("discord.js");
+const { PermissionFlagsBits, EmbedBuilder, ActionRowBuilder, StringSelectMenuBuilder, ButtonBuilder, ButtonStyle } = require("discord.js");
 const config = require("../../config.json");
 const emojis = config.emojis;
 const yetkirole = require("../../pattern/yetkirole.json");
@@ -35,33 +35,67 @@ module.exports = {
       .setTimestamp();
 
     if (!args[0]) {
+      const protectionField = `🛡️ **Anti-Raid**: ${protection.antiraid.status ? "🟢" : "🔴"} | \`${protection.antiraid.limit}\`/\`${protection.antiraid.time}\`s\n` +
+        `💬 **Anti-Spam**: ${protection.antispam.status ? "🟢" : "🔴"} | \`${protection.antispam.limit}\`/\`${protection.antispam.time}\`s\n` +
+        `😀 **Anti-Emoji**: ${protection.antiemoji.status ? "🟢" : "🔴"} | \`${protection.antiemoji.limit}\`\n` +
+        `🔠 **Anti-Caps**: ${protection.anticaps.status ? "🟢" : "🔴"} | \`${protection.anticaps.percentage}%\`\n` +
+        `📋 **Anti-Duplicate**: ${protection.antiduplicate.status ? "🟢" : "🔴"} | \`${protection.antiduplicate.count}\`x\n` +
+        `@️ **Anti-Mention**: ${protection.antimention.status ? "🟢" : "🔴"} | \`${protection.antimention.limit}\``;
+
       baseEmbed.setTitle(`💎 SISTEM YÖNETIM MERKEZI`)
-        .setDescription("Sunucu üzerindeki tüm modüllerin durumlarını ve yapılandırmalarını buradan yönetebilirsiniz.");
-      
-      const roleField = Object.entries(yetkirole).map(([k, v]) => `● **${k.charAt(0).toUpperCase() + k.slice(1)}**: ${v ? `<@&${v}>` : "🔴 `Ayarlanmamış`"}`).join("\n");
-      const logField = Object.entries(logkanallari).map(([k, v]) => `● **${k.split('_')[0].toUpperCase()}**: ${v ? `<#${v}>` : "🔴 `Kapalı`"}`).join("\n");
-      
-      const limitField = Object.entries(limitler).map(([k, v]) => 
-        `🛡️ **${k.toUpperCase()}**: ${v.status ? "🟢 `Aktif`" : "🔴 `Kapalı`"}\n` +
-        `├ \`Limit:\` ${v.sayi}/${v.dakika}dk | \`CD:\` ${v.cooldown}s`
-      ).join("\n\n");
+        .setDescription("Aşağıdaki menüden kategori seçerek ayarları görüntüleyebilir ve düzenleyebilirsiniz.");
 
-      const botField = `📍 **Kanal**: ${botkomut.kanal ? `<#${botkomut.kanal}>` : "🔴 `Pasif`"}\n🔒 **Durum**: \`${botkomut.only ? "Kısıtlı Mod" : "Serbest Mod"}\``;
-      const fotoField = Object.entries(fotochat).filter(([k,v]) => v).map(([k]) => `📸 <#${k}>`).join(", ") || "🔴 `Kanal Yok`";
-      const antilinkField = `🔗 **Durum**: ${antilink.status ? "🟢 `Aktif`" : "🔴 `Kapalı`"}\n🔓 **Discord**: ${antilink.allowDiscord ? "✅ `İzinli`" : "❌ `Yasak`"}\n📋 **Whitelist**: ${antilink.whitelist.length > 0 ? `\`${antilink.whitelist.length}\` site` : "🔴 `Boş`"}`;
+      const selectMenu = new StringSelectMenuBuilder()
+        .setCustomId("ayarla_category")
+        .setPlaceholder("📂 Kategori Seçin")
+        .addOptions([
+          {
+            label: "Yetki Rolleri",
+            description: "Yetki rollerini ayarlayın",
+            value: "roller",
+            emoji: "🎭"
+          },
+          {
+            label: "Log Kanalları",
+            description: "Log kanallarını yapılandırın",
+            value: "loglar",
+            emoji: "📁"
+          },
+          {
+            label: "Koruma Sistemleri",
+            description: "Anti-raid, anti-spam vb.",
+            value: "koruma",
+            emoji: "🛡️"
+          },
+          {
+            label: "Anti-Link",
+            description: "Link engelleme sistemi",
+            value: "antilink",
+            emoji: "🔗"
+          },
+          {
+            label: "Limit Sistemi",
+            description: "Komut limitleri",
+            value: "limitler",
+            emoji: "⚡"
+          },
+          {
+            label: "Bot Kontrol",
+            description: "Bot komut kısıtlamaları",
+            value: "botkomut",
+            emoji: "🤖"
+          },
+          {
+            label: "Foto Chat",
+            description: "Sadece görsel kanallar",
+            value: "fotochat",
+            emoji: "📸"
+          }
+        ]);
 
-      baseEmbed.addFields(
-        { name: `🎭 YETKİ ROLLERİ`, value: roleField || "Veri yok.", inline: true },
-        { name: `📁 KAYIT LOGLARI`, value: logField || "Veri yok.", inline: true },
-        { name: `\u200B`, value: `\u200B`, inline: false },
-        { name: `🤖 BOT KONTROL`, value: botField, inline: true },
-        { name: `📸 FOTO CHAT`, value: fotoField, inline: true },
-        { name: `\u200B`, value: `\u200B`, inline: false },
-        { name: `🔗 ANTİ-LİNK`, value: antilinkField, inline: true },
-        { name: `🛡️ LIMITs`, value: limitField || "Veri yok.", inline: false }
-      );
+      const row = new ActionRowBuilder().addComponents(selectMenu);
       
-      return message.channel.send({ embeds: [baseEmbed] });
+      return message.channel.send({ embeds: [baseEmbed], components: [row] });
     }
 
     const type = args[0];

@@ -618,6 +618,81 @@ client.on("interactionCreate", async (interaction) => {
       return interaction.update({ embeds: [embed] });
     }
 
+    if (interaction.customId === "ayarla_category") {
+      const isOwner = interaction.user.id === process.env.OWNER_ID;
+      const isAdmin = interaction.member.permissions.has(PermissionFlagsBits.Administrator);
+      const yetkiroleData = require("./pattern/yetkirole.json");
+      const isYonetim = yetkiroleData.yonetim && interaction.member.roles.cache.has(yetkiroleData.yonetim);
+
+      if (!isOwner && !isAdmin && !isYonetim) {
+        return interaction.reply({ content: `${emojis.error} Bu ayarları sadece yöneticiler değiştirebilir!`, flags: [4096] });
+      }
+
+      const category = interaction.values[0];
+      const embed = new EmbedBuilder()
+        .setAuthor({ name: `${interaction.guild.name} | Yönetici Paneli`, iconURL: interaction.guild.iconURL({ dynamic: true }) })
+        .setThumbnail(interaction.guild.iconURL({ dynamic: true }))
+        .setColor("#2B2D31")
+        .setFooter({ text: `Yetkili: ${interaction.user.tag}`, iconURL: interaction.user.displayAvatarURL({ dynamic: true }) })
+        .setTimestamp();
+
+      if (category === "roller") {
+        const yetkiroleData = require("./pattern/yetkirole.json");
+        const roleField = Object.entries(yetkiroleData).map(([k, v]) => `● **${k}**: ${v ? `<@&${v}>` : "🔴 `Ayarlanmamış`"}`).join("\n");
+        
+        embed.setTitle("🎭 Yetki Rolleri")
+          .setDescription(`Yetki rollerini ayarlamak için:\n\`${config.prefix}ayarla rol <kategori> @Rol\`\n\n**Mevcut Roller:**\n${roleField}`)
+          .addFields({ name: "Kategoriler", value: `\`${Object.keys(yetkiroleData).join(", ")}\`` });
+      } else if (category === "loglar") {
+        const logkanallariData = require("./pattern/logkanallari.json");
+        const logField = Object.entries(logkanallariData).map(([k, v]) => `● **${k}**: ${v ? `<#${v}>` : "🔴 `Kapalı`"}`).join("\n");
+        
+        embed.setTitle("📁 Log Kanalları")
+          .setDescription(`Log kanallarını ayarlamak için:\n\`${config.prefix}ayarla log <tip> #Kanal\`\n\n**Mevcut Loglar:**\n${logField}`)
+          .addFields({ name: "Log Tipleri", value: `\`${Object.keys(logkanallariData).join(", ")}\`` });
+      } else if (category === "koruma") {
+        const protectionData = require("./pattern/protection.json");
+        const protectionField = `🛡️ **Anti-Raid**: ${protectionData.antiraid.status ? "🟢" : "🔴"} | \`${protectionData.antiraid.limit}\`/\`${protectionData.antiraid.time}\`s | \`${protectionData.antiraid.action}\`\n` +
+          `💬 **Anti-Spam**: ${protectionData.antispam.status ? "🟢" : "🔴"} | \`${protectionData.antispam.limit}\`/\`${protectionData.antispam.time}\`s\n` +
+          `😀 **Anti-Emoji**: ${protectionData.antiemoji.status ? "🟢" : "🔴"} | Limit: \`${protectionData.antiemoji.limit}\`\n` +
+          `🔠 **Anti-Caps**: ${protectionData.anticaps.status ? "🟢" : "🔴"} | \`${protectionData.anticaps.percentage}%\`\n` +
+          `📋 **Anti-Duplicate**: ${protectionData.antiduplicate.status ? "🟢" : "🔴"} | \`${protectionData.antiduplicate.count}\`x\n` +
+          `@️ **Anti-Mention**: ${protectionData.antimention.status ? "🟢" : "🔴"} | \`${protectionData.antimention.limit}\``;
+
+        embed.setTitle("🛡️ Koruma Sistemleri")
+          .setDescription(`Koruma sistemlerini ayarlamak için:\n\`${config.prefix}ayarla koruma <sistem> <on/off/ayarla>\`\n\n**Mevcut Durumlar:**\n${protectionField}`)
+          .addFields({ name: "Sistemler", value: "`antiraid, antispam, antiemoji, anticaps, antiduplicate, antimention`" });
+      } else if (category === "antilink") {
+        const antilinkData = require("./pattern/antilink.json");
+        const antilinkField = `🔗 **Durum**: ${antilinkData.status ? "🟢 `Aktif`" : "🔴 `Kapalı`"}\n🔓 **Discord**: ${antilinkData.allowDiscord ? "✅ `İzinli`" : "❌ `Yasak`"}\n📋 **Whitelist**: ${antilinkData.whitelist.length > 0 ? `\`${antilinkData.whitelist.length}\` site` : "🔴 `Boş`"}`;
+
+        embed.setTitle("🔗 Anti-Link Sistemi")
+          .setDescription(`Anti-link sistemini ayarlamak için:\n\`${config.prefix}ayarla antilink <on/off/discord/whitelist>\`\n\n**Mevcut Durum:**\n${antilinkField}`);
+      } else if (category === "limitler") {
+        const limitlerData = require("./pattern/limitler.json");
+        const limitField = Object.entries(limitlerData).map(([k, v]) => 
+          `🛡️ **${k.toUpperCase()}**: ${v.status ? "🟢" : "🔴"}\n├ Limit: \`${v.sayi}/${v.dakika}\`dk | CD: \`${v.cooldown}\`s`
+        ).join("\n\n");
+
+        embed.setTitle("⚡ Limit Sistemi")
+          .setDescription(`Limit sistemini ayarlamak için:\n\`${config.prefix}ayarla limit <ban/kick/mute> <sayı> <dakika>\`\n\n**Mevcut Limitler:**\n${limitField}`);
+      } else if (category === "botkomut") {
+        const botkomutData = require("./pattern/botkomut.json");
+        const botField = `📍 **Kanal**: ${botkomutData.kanal ? `<#${botkomutData.kanal}>` : "🔴 `Pasif`"}\n🔒 **Durum**: \`${botkomutData.only ? "Kısıtlı Mod" : "Serbest Mod"}\``;
+
+        embed.setTitle("🤖 Bot Kontrol")
+          .setDescription(`Bot komut kısıtlamasını ayarlamak için:\n\`${config.prefix}ayarla botkomut <only/change/off>\`\n\n**Mevcut Durum:**\n${botField}`);
+      } else if (category === "fotochat") {
+        const fotochatData = require("./pattern/fotochat.json");
+        const fotoField = Object.entries(fotochatData).filter(([, v]) => v).map(([k]) => `📸 <#${k}>`).join(", ") || "🔴 `Kanal Yok`";
+
+        embed.setTitle("📸 Foto Chat")
+          .setDescription(`Foto chat kanallarını ayarlamak için:\n\`${config.prefix}ayarla fotochat #Kanal <ac/kapa>\`\n\n**Aktif Kanallar:**\n${fotoField}`);
+      }
+
+      return interaction.update({ embeds: [embed] });
+    }
+
     if (interaction.customId === "help_settings") {
       const isOwner = interaction.user.id === process.env.OWNER_ID;
       const isAdmin = interaction.member.permissions.has(PermissionFlagsBits.Administrator);
